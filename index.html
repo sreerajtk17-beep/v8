@@ -1,0 +1,2326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accent — Learn languages by ear</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #f5f6fa;
+    --surface: #ffffff;
+    --surface-alt: #eef0f6;
+    --border: #e3e6ee;
+    --text: #1a1d29;
+    --text-dim: #5b6072;
+    --text-faint: #9296a6;
+
+    --primary: #4954e6;
+    --primary-dark: #3740c2;
+    --primary-tint: #ecedfd;
+
+    --green: #12b76a;
+    --green-tint: #e6f9ef;
+    --amber: #ff9600;
+    --amber-tint: #fff2df;
+    --red: #ff4b4b;
+    --red-tint: #ffe9e9;
+    --gold: #ffc21f;
+    --gold-tint: #fff6dc;
+
+    --radius: 14px;
+    --font-display: 'Poppins', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection{ background: var(--primary); color:#fff; }
+  button{ font-family: inherit; }
+
+  .shell{ display:flex; min-height:100vh; }
+
+  /* ---------- sidebar rail ---------- */
+  .rail{
+    width: 84px; flex-shrink:0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display:flex; flex-direction:column; align-items:center;
+    padding: 22px 0 18px; gap:8px;
+  }
+  .brandmark{ width:40px; height:40px; margin-bottom:26px; display:flex; align-items:center; justify-content:center; }
+  .brandmark svg{ width:32px; height:32px; }
+  .rail-nav{ display:flex; flex-direction:column; gap:6px; flex:1; }
+  .rail-btn{
+    width:60px; padding:10px 0 8px; background:none; border:none;
+    color: var(--text-faint); cursor:pointer; display:flex; flex-direction:column;
+    align-items:center; gap:6px; border-radius:12px; font-size:10.5px; letter-spacing:.02em;
+    transition: color .15s ease, background .15s ease; position:relative;
+  }
+  .rail-btn svg{ width:21px; height:21px; stroke:currentColor; fill:none; stroke-width:1.7; }
+  .rail-btn:hover{ color: var(--text-dim); background: var(--surface-alt); }
+  .rail-btn.active{ color: var(--primary); background: var(--primary-tint); }
+  .rail-foot{
+    width:40px; height:40px; border-radius:50%;
+    background: var(--primary); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-display); font-weight:600; font-size:15px; cursor:pointer;
+  }
+
+  /* ---------- main ---------- */
+  .main{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .view{ display:none; flex:1; min-height:0; flex-direction:column; }
+  .view.active{ display:flex; }
+
+  /* ---------- WATCH (video hub) ---------- */
+  .watch-top{ padding: 28px 40px 0; }
+  .watch-heading{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+  .watch-heading h1{ font-family: var(--font-display); font-weight:600; font-size:28px; }
+  .watch-heading .tagline{ font-size:13px; color: var(--text-faint); font-family: var(--font-mono); }
+  .search-row{ display:flex; gap:12px; margin-bottom:20px; }
+  .search-bar{
+    flex:1; display:flex; align-items:center; gap:10px;
+    background: var(--surface); border:1px solid var(--border); border-radius:999px; padding:11px 18px;
+  }
+  .search-bar:focus-within{ border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-tint); }
+  .search-bar svg{ width:18px; height:18px; stroke: var(--text-faint); flex-shrink:0; }
+  .search-bar input{ flex:1; background:none; border:none; outline:none; color: var(--text); font-size:14.5px; }
+  .search-bar input::placeholder{ color: var(--text-faint); }
+  .filter-btn{
+    background: var(--surface); border:1px solid var(--border); color: var(--text-dim);
+    border-radius:999px; padding:0 18px; font-size:13.5px; cursor:pointer; display:flex; align-items:center; gap:8px;
+  }
+  .filter-btn svg{ width:15px; height:15px; }
+
+  .tabs{ display:flex; gap:8px; border-bottom:1px solid var(--border); margin-bottom:24px; }
+  .tab{
+    background:none; border:none; color: var(--text-faint); font-size:14px; font-weight:500;
+    padding:10px 4px 12px; cursor:pointer; position:relative; display:flex; align-items:center; gap:8px;
+  }
+  .tab .count{ font-family: var(--font-mono); font-size:11px; color: var(--text-faint); background: var(--surface-alt); padding:1px 7px; border-radius:999px; }
+  .tab + .tab{ margin-left:10px; }
+  .tab.active{ color: var(--text); }
+  .tab.active .count{ background: var(--primary-tint); color: var(--primary); }
+  .tab.active::after{ content:""; position:absolute; left:0; right:0; bottom:-1px; height:2px; background: var(--primary); border-radius:2px; }
+
+  .grid-wrap{ flex:1; overflow-y:auto; padding:0 40px 40px; }
+  .video-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:22px 20px; }
+  .card{ cursor:pointer; display:flex; flex-direction:column; gap:10px; }
+  .thumb{
+    position:relative; aspect-ratio:16/9; border-radius:10px; overflow:hidden;
+    background: linear-gradient(135deg, var(--surface-alt), #e2e5ef);
+    display:flex; align-items:center; justify-content:center; border:1px solid var(--border);
+  }
+  .thumb .waveform{ display:flex; align-items:center; gap:3px; height:34px; opacity:.5; }
+  .thumb .waveform span{ width:3px; border-radius:2px; background: var(--text-faint); }
+  .card:hover .thumb .waveform span{ background: var(--primary); }
+  .thumb::after{ content:""; position:absolute; inset:0; background: rgba(0,0,0,0); transition: background .15s ease; }
+  .card:hover .thumb::after{ background: rgba(20,20,30,.12); }
+  .play-badge{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transition: opacity .15s ease; }
+  .card:hover .play-badge{ opacity:1; }
+  .play-badge svg{ width:44px; height:44px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.35)); }
+  .duration{ position:absolute; right:7px; bottom:7px; background: rgba(20,20,30,.8); color:#fff; font-family: var(--font-mono); font-size:11px; padding:2px 6px; border-radius:4px; }
+  .progress-bar{ position:absolute; left:0; right:0; bottom:0; height:3px; background: rgba(0,0,0,.1); }
+  .progress-bar i{ display:block; height:100%; background: var(--primary); }
+  .card-info{ display:flex; gap:10px; }
+  .avatar{
+    width:34px; height:34px; border-radius:50%; flex-shrink:0; background: var(--surface-alt);
+    display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-size:13px;
+    font-weight:600; color: var(--text-dim); border:1px solid var(--border);
+  }
+  .card-info .avatar{ cursor:pointer; }
+  .card-text{ min-width:0; }
+  .card-text h3{ font-size:14.5px; font-weight:600; line-height:1.35; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .card-meta{ font-size:12.5px; color: var(--text-faint); display:flex; align-items:center; gap:6px; }
+  .level-pill{ font-family: var(--font-mono); font-size:10.5px; padding:1px 7px; border-radius:5px; letter-spacing:.02em; }
+  .level-beginner{ background: var(--green-tint); color: #0a8a52; }
+  .level-intermediate{ background: var(--amber-tint); color: #b46a00; }
+  .level-advanced{ background: #fde7ea; color: #c9314a; }
+  .level-history{ background: var(--surface-alt); color: var(--text-dim); }
+
+  /* ---------- WATCH PLAYER (single video page) ---------- */
+  .player-wrap{ flex:1; overflow-y:auto; padding: 24px 40px 50px; }
+  .back-btn{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:none; color: var(--text-dim);
+    font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:6px 4px;
+  }
+  .back-btn svg{ width:16px; height:16px; }
+  .back-btn:hover{ color: var(--primary); }
+  .player-layout{ display:flex; gap:28px; align-items:flex-start; }
+  .player-main{ flex:1; min-width:0; }
+  .player-stage{
+    aspect-ratio:16/9; border-radius:14px; background: linear-gradient(135deg, #20233a, #2b2f4a);
+    display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; margin-bottom:18px;
+  }
+  .player-stage .waveform-big{ display:flex; align-items:center; gap:5px; height:70px; }
+  .player-stage .waveform-big span{ width:5px; border-radius:3px; background: rgba(255,255,255,.55); }
+  .player-stage .center-play{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .player-stage .center-play svg{ width:64px; height:64px; }
+  .player-title{ font-family: var(--font-display); font-size:21px; font-weight:600; margin-bottom:6px; line-height:1.35; }
+  .player-subrow{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; margin-bottom:18px; padding-bottom:18px; border-bottom:1px solid var(--border); }
+  .player-meta-txt{ font-size:13px; color: var(--text-faint); }
+  .channel-row{ display:flex; align-items:center; gap:12px; }
+  .channel-clickable{ cursor:pointer; }
+  .channel-clickable:hover h4{ color: var(--primary); }
+  .channel-header{ display:flex; align-items:center; gap:18px; margin-bottom:26px; }
+  .channel-avatar-big{ width:64px; height:64px; font-size:22px; flex-shrink:0; }
+  .channel-name{ font-family: var(--font-display); font-size:22px; font-weight:600; margin-bottom:4px; }
+  .channel-sub{ font-size:13px; color: var(--text-faint); }
+  .sub-row{ display:flex; align-items:center; gap:14px; padding:12px 4px; border-bottom:1px solid var(--border); cursor:pointer; }
+  .sub-row:hover .sub-name{ color: var(--primary); }
+  .sub-row .sub-name{ font-size:14.5px; font-weight:600; flex:1; }
+  .sub-row .sub-count{ font-size:12.5px; color: var(--text-faint); }
+  .channel-info h4{ font-size:14.5px; font-weight:600; }
+  .channel-info span{ font-size:12px; color: var(--text-faint); }
+  .subscribe-btn{
+    background: var(--primary); color:#fff; border:none; padding:9px 20px; border-radius:999px;
+    font-size:13.5px; font-weight:600; cursor:pointer; margin-left:8px;
+  }
+  .subscribe-btn.subscribed{ background: var(--surface-alt); color: var(--text-dim); }
+  .action-row{ display:flex; align-items:center; gap:10px; }
+  .action-btn{
+    display:flex; align-items:center; gap:7px; background: var(--surface-alt); border:none; color: var(--text-dim);
+    padding:9px 16px; border-radius:999px; font-size:13.5px; font-weight:500; cursor:pointer;
+  }
+  .action-btn svg{ width:16px; height:16px; }
+  .action-btn.liked{ background: var(--primary-tint); color: var(--primary); }
+  .player-desc{ font-size:13.5px; color: var(--text-dim); line-height:1.7; background: var(--surface-alt); padding:14px 16px; border-radius:12px; margin-bottom:26px; }
+
+  .comments-head{ display:flex; align-items:center; gap:10px; margin-bottom:18px; font-size:15px; font-weight:600; }
+  .comments-head span{ color: var(--text-faint); font-weight:400; font-size:13px; }
+  .comment-input-row{ display:flex; gap:12px; margin-bottom:24px; }
+  .comment-input-row input{
+    flex:1; background:none; border:none; border-bottom:1px solid var(--border); padding:8px 2px; font-size:13.5px; outline:none;
+  }
+  .comment-input-row input:focus{ border-color: var(--primary); }
+  .comment-input-row button{
+    background: var(--primary); color:#fff; border:none; border-radius:999px; padding:8px 18px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .comment{ display:flex; gap:12px; margin-bottom:20px; }
+  .comment .avatar{ width:32px; height:32px; font-size:12px; }
+  .comment-body h5{ font-size:13.5px; font-weight:600; margin-bottom:2px; }
+  .comment-body h5 span{ font-weight:400; color: var(--text-faint); font-size:11.5px; margin-left:6px; }
+  .comment-body p{ font-size:13.5px; color: var(--text-dim); line-height:1.55; }
+  .comment-likes{ display:flex; align-items:center; gap:5px; margin-top:6px; font-size:12px; color: var(--text-faint); }
+  .comment-likes svg{ width:13px; height:13px; }
+
+  .player-side{ width:320px; flex-shrink:0; display:flex; flex-direction:column; gap:12px; }
+  .side-title{ font-size:13px; font-weight:600; color: var(--text-dim); margin-bottom:4px; }
+  .side-card{ display:flex; gap:10px; cursor:pointer; }
+  .side-thumb{
+    width:120px; aspect-ratio:16/9; border-radius:8px; flex-shrink:0; position:relative; overflow:hidden;
+    background: linear-gradient(135deg, var(--surface-alt), #e2e5ef); display:flex; align-items:center; justify-content:center; border:1px solid var(--border);
+  }
+  .side-thumb .waveform{ display:flex; align-items:center; gap:2px; height:22px; opacity:.5; }
+  .side-thumb .waveform span{ width:2px; border-radius:2px; background: var(--text-faint); }
+  .side-thumb .duration{ font-size:10px; padding:1px 4px; }
+  .side-text h4{ font-size:13px; font-weight:600; line-height:1.35; margin-bottom:3px; }
+  .side-text span{ font-size:11.5px; color: var(--text-faint); }
+
+  /* ---------- generic placeholder (Hybrid / Read) ---------- */
+  .placeholder-view{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:40px; gap:18px; }
+  .placeholder-view .icon-ring{ width:64px; height:64px; border-radius:50%; background: var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; }
+  .placeholder-view .icon-ring svg{ width:26px; height:26px; stroke: var(--primary); fill:none; stroke-width:1.7; }
+  .placeholder-view h2{ font-family: var(--font-display); font-weight:600; font-size:23px; }
+  .placeholder-view p{ color: var(--text-dim); font-size:14.5px; max-width:380px; line-height:1.6; }
+  .placeholder-view .tag{ font-family: var(--font-mono); font-size:11.5px; color: var(--text-faint); background: var(--surface); border:1px solid var(--border); padding:4px 12px; border-radius:999px; }
+
+  /* ---------- AI: chat / speak ---------- */
+  .ai-shell{ flex:1; display:flex; flex-direction:column; padding: 26px 40px; max-width: 680px; margin:0 auto; width:100%; }
+  .ai-switch{ display:flex; gap:6px; background: var(--surface-alt); padding:4px; border-radius:999px; margin-bottom:22px; width:fit-content; }
+  .account-card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); padding:18px 20px; margin-bottom:18px; }
+  .account-title{ font-family: var(--font-display); font-size:15px; font-weight:600; margin-bottom:4px; }
+  .account-sub{ font-size:12.5px; color: var(--text-faint); margin-bottom:12px; line-height:1.5; }
+  .acct-row{ display:flex; gap:10px; margin-bottom:8px; }
+  .acct-row input{ flex:1; background: var(--surface-alt); border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:13.5px; color: var(--text); outline:none; }
+  .acct-row input:focus{ border-color: var(--primary); }
+  .acct-row .flow-btn{ width:auto; padding:0 18px; }
+  .account-status{ font-size:12.5px; color: var(--text-faint); min-height:16px; }
+  .account-status.error{ color: var(--red); }
+  .account-status.ok{ color: #0a8a52; }
+  .acct-tabs{ display:flex; gap:6px; background: var(--surface-alt); padding:4px; border-radius:999px; margin-bottom:16px; width:fit-content; }
+  .acct-tabs button{ border:none; background:none; padding:8px 18px; border-radius:999px; font-size:13px; font-weight:600; color: var(--text-dim); cursor:pointer; }
+  .acct-tabs button.active{ background: var(--surface); color: var(--primary); box-shadow: 0 1px 2px rgba(20,20,40,.08); }
+  .acct-switch-line{ font-size:12.5px; color: var(--text-faint); margin-top:10px; }
+  .acct-switch-line a{ color: var(--primary); font-weight:600; text-decoration:none; cursor:pointer; }
+  .acct-switch-line a:hover{ text-decoration:underline; }
+  .ai-switch button{
+    border:none; background:none; padding:8px 20px; border-radius:999px; font-size:13.5px; font-weight:600; color: var(--text-dim); cursor:pointer;
+  }
+  .ai-switch button.active{ background: var(--surface); color: var(--primary); box-shadow: 0 1px 2px rgba(20,20,40,.08); }
+  .ai-mode{ display:none; flex:1; flex-direction:column; }
+  .ai-mode.active{ display:flex; }
+
+  .ai-msgs{ flex:1; display:flex; flex-direction:column; gap:16px; padding-bottom:20px; }
+  .msg{ max-width:78%; padding:12px 16px; border-radius:14px; font-size:14px; line-height:1.55; }
+  .msg.bot{ background: var(--surface); border:1px solid var(--border); align-self:flex-start; border-bottom-left-radius:4px; }
+  .msg.user{ background: var(--primary); color:#fff; align-self:flex-end; border-bottom-right-radius:4px; }
+  .ai-input-row{ display:flex; gap:10px; }
+  .ai-input-row input{ flex:1; background: var(--surface); border:1px solid var(--border); border-radius:999px; padding:12px 18px; color: var(--text); font-size:14px; outline:none; }
+  .ai-input-row input:focus{ border-color: var(--primary); }
+  .ai-input-row button{ width:44px; height:44px; border-radius:50%; border:none; background: var(--primary); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .ai-input-row button svg{ width:18px; height:18px; }
+  .ai-input-row input:disabled, .ai-input-row button:disabled{ opacity:.5; cursor:not-allowed; }
+  .ai-load-bar{ font-size:12px; color: var(--text-faint); background: var(--surface-alt); border-radius:999px; padding:7px 16px; margin-bottom:14px; display:none; }
+  .mic-btn:disabled{ opacity:.5; cursor:not-allowed; box-shadow:none; }
+
+  .speak-stage{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; padding: 20px 0 30px; }
+  .character{
+    width:150px; height:150px; border-radius:50%;
+    background: linear-gradient(150deg, var(--primary), #7a83f0);
+    display:flex; align-items:center; justify-content:center; position:relative;
+  }
+  .character .ring{ position:absolute; inset:-10px; border-radius:50%; border:2px solid var(--primary-tint); opacity:0; }
+  .character.listening .ring{ opacity:1; animation: pulse 1.6s ease-out infinite; }
+  @keyframes pulse{ 0%{ transform:scale(1); opacity:.7; } 100%{ transform:scale(1.35); opacity:0; } }
+  .character svg{ width:56px; height:56px; stroke:#fff; fill:none; stroke-width:1.6; }
+  .speak-status{ font-size:14.5px; color: var(--text-dim); font-weight:500; }
+  .speak-name{ font-family: var(--font-display); font-size:17px; font-weight:600; }
+  .mic-btn{
+    width:64px; height:64px; border-radius:50%; border:none; background: var(--red); color:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 4px 14px rgba(255,75,75,.35);
+  }
+  .mic-btn.on{ background: var(--primary); box-shadow: 0 4px 14px rgba(73,84,230,.35); }
+  .mic-btn svg{ width:24px; height:24px; }
+  .speak-transcript{ width:100%; max-width:440px; text-align:center; font-size:13.5px; color: var(--text-faint); min-height:20px; }
+
+  /* ---------- PROFILE (gamified) ---------- */
+  .profile-shell{ flex:1; padding: 32px 40px 50px; max-width: 680px; margin:0 auto; width:100%; }
+  .profile-head{ display:flex; align-items:center; gap:16px; margin-bottom:20px; }
+  .profile-avatar{
+    width:64px; height:64px; border-radius:50%; background: var(--primary); position:relative;
+    display:flex; align-items:center; justify-content:center; font-family: var(--font-display); font-weight:600; font-size:22px; color:#fff;
+  }
+  .level-badge{
+    position:absolute; bottom:-4px; right:-4px; background: var(--gold); color:#5c3d00; font-family: var(--font-mono);
+    font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:999px; border:2px solid var(--surface);
+  }
+  .profile-head h2{ font-family: var(--font-display); font-size:21px; font-weight:600; margin-bottom:3px; }
+  .profile-head p{ color: var(--text-faint); font-size:13px; }
+  .profile-edit-btn{ margin-left:auto; background: var(--surface); border:1px solid var(--border); color: var(--text-dim); font-size:13px; padding:8px 16px; border-radius:999px; cursor:pointer; }
+  .profile-edit-btn:hover{ border-color: var(--primary); color: var(--primary); }
+
+  .pill-row{ display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; }
+  .stat-pill{ display:flex; align-items:center; gap:8px; background: var(--surface); border:1px solid var(--border); border-radius:999px; padding:8px 16px; }
+  .stat-pill svg{ width:18px; height:18px; }
+  .stat-pill b{ font-size:14px; font-family: var(--font-display); }
+  .stat-pill span{ font-size:11.5px; color: var(--text-faint); }
+  .stat-pill.flame svg{ stroke: var(--amber); fill: var(--amber-tint); }
+  .stat-pill.xp svg{ stroke: var(--primary); fill: var(--primary-tint); }
+  .stat-pill.gem svg{ stroke: #12a4d1; fill: #e3f6fc; }
+  .stat-pill.heart svg{ stroke: var(--red); fill: var(--red-tint); }
+
+  .xp-card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); padding:18px 20px; margin-bottom:22px; }
+  .xp-card-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+  .xp-card-top b{ font-family: var(--font-display); font-size:15px; }
+  .xp-card-top span{ font-size:12px; color: var(--text-faint); font-family: var(--font-mono); }
+  .xp-track{ height:10px; background: var(--surface-alt); border-radius:999px; overflow:hidden; }
+  .xp-track i{ display:block; height:100%; background: linear-gradient(90deg, var(--primary), #7a83f0); border-radius:999px; }
+
+  .section-title{ font-family: var(--font-display); font-size:15.5px; font-weight:600; margin: 26px 0 14px; }
+
+  .league-card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); overflow:hidden; margin-bottom: 6px; }
+  .league-row{ display:flex; align-items:center; gap:12px; padding:11px 16px; border-bottom:1px solid var(--border); }
+  .league-row:last-child{ border-bottom:none; }
+  .league-row.me{ background: var(--primary-tint); }
+  .league-rank{ font-family: var(--font-mono); font-size:12.5px; color: var(--text-faint); width:18px; }
+  .league-row .avatar{ width:30px; height:30px; font-size:11.5px; }
+  .league-name{ flex:1; font-size:13.5px; font-weight:500; }
+  .league-xp{ font-family: var(--font-mono); font-size:12px; color: var(--text-dim); }
+
+  .lang-row{ display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid var(--border); }
+  .lang-row:last-child{ border-bottom:none; }
+  .lang-row .name{ font-size:14.5px; font-weight:500; }
+  .lang-row .sub{ font-size:12px; color: var(--text-faint); }
+  .bar-track{ width:120px; height:6px; background: var(--surface-alt); border-radius:3px; overflow:hidden; }
+  .bar-track i{ display:block; height:100%; background: var(--green); }
+
+  .badge-grid{ display:grid; grid-template-columns: repeat(4,1fr); gap:12px; margin-bottom:10px; }
+  .badge{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); padding:14px 8px; display:flex; flex-direction:column; align-items:center; gap:8px; text-align:center; }
+  .badge.locked{ opacity:.45; }
+  .badge .badge-icon{ width:34px; height:34px; border-radius:50%; background: var(--gold-tint); display:flex; align-items:center; justify-content:center; }
+  .badge .badge-icon svg{ width:16px; height:16px; stroke:#b8860b; fill:none; stroke-width:1.8; }
+  .badge.locked .badge-icon{ background: var(--surface-alt); }
+  .badge.locked .badge-icon svg{ stroke: var(--text-faint); }
+  .badge .badge-label{ font-size:11px; color: var(--text-dim); line-height:1.3; }
+
+  .heatmap{ display:grid; grid-template-columns: repeat(26, 1fr); gap:3px; margin-bottom:6px; }
+  .heatmap i{ display:block; aspect-ratio:1; border-radius:2px; background: var(--surface-alt); }
+  .heatmap i.l1{ background:#bfe8d2; } .heatmap i.l2{ background:#6cd19e; } .heatmap i.l3{ background: var(--green); }
+  .heatmap-legend{ display:flex; align-items:center; gap:6px; justify-content:flex-end; font-size:11px; color: var(--text-faint); }
+  .heatmap-legend i{ width:10px; height:10px; border-radius:2px; display:inline-block; background: var(--surface-alt); }
+  .heatmap-legend i.l1{ background:#bfe8d2; } .heatmap-legend i.l2{ background:#6cd19e; } .heatmap-legend i.l3{ background: var(--green); }
+
+  .settings-list{ display:flex; flex-direction:column; }
+  .settings-row{ display:flex; align-items:center; justify-content:space-between; padding:14px 4px; border-bottom:1px solid var(--border); font-size:14px; cursor:pointer; }
+  .settings-row:last-child{ border-bottom:none; }
+  .settings-row .left{ display:flex; align-items:center; gap:12px; color: var(--text); }
+  .settings-row .left svg{ width:17px; height:17px; stroke: var(--text-dim); fill:none; stroke-width:1.6; }
+  .settings-row .right svg{ width:15px; height:15px; stroke: var(--text-faint); fill:none; stroke-width:1.6; }
+  .settings-row.danger .left{ color: var(--red); }
+  .settings-row.danger .left svg{ stroke: var(--red); }
+
+  /* ---------- READ (beginner/intermediate/advance) ---------- */
+  .read-panel{ display:none; }
+  .read-panel.active{ display:block; }
+
+  .srs-wrap{ max-width:520px; margin:0 auto; }
+  .srs-counter{ text-align:center; font-family: var(--font-mono); font-size:12px; color: var(--text-faint); margin-bottom:14px; }
+  .sentence-card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); padding:24px; }
+  .sentence-image{
+    aspect-ratio:16/9; border-radius:10px; margin-bottom:20px;
+    display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(135deg, var(--primary-tint), #dfe1fb);
+  }
+  .sentence-image svg{ width:56px; height:56px; stroke: var(--primary); fill:none; stroke-width:1.5; }
+  .sentence-text{ font-family: var(--font-display); font-size:19px; font-weight:600; text-align:center; margin-bottom:10px; line-height:1.4; }
+  .sentence-translation{ font-size:14px; color: var(--text-dim); text-align:center; min-height:20px; }
+  .reveal-btn{
+    display:block; margin:16px auto 0; background: var(--surface-alt); border:1px solid var(--border); color: var(--text-dim);
+    padding:9px 20px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .reveal-btn:hover{ border-color: var(--primary); color: var(--primary); }
+  .srs-controls{ display:flex; gap:10px; margin-top:20px; }
+  .srs-btn{ flex:1; border:none; padding:12px; border-radius:12px; font-size:13.5px; font-weight:600; cursor:pointer; }
+  .srs-btn.again{ background: var(--red-tint); color:#c9314a; }
+  .srs-btn.good{ background: var(--green-tint); color:#0a8a52; }
+  .srs-dots{ display:flex; gap:6px; justify-content:center; margin-top:20px; }
+  .srs-dots i{ width:7px; height:7px; border-radius:50%; background: var(--border); display:block; }
+  .srs-dots i.active{ background: var(--primary); width:16px; border-radius:4px; }
+  .srs-dots i.done{ background: var(--green); }
+
+  .book-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:22px 18px; }
+  .book-card{ cursor:pointer; }
+  .book-cover{
+    aspect-ratio:3/4; border-radius:10px; display:flex; flex-direction:column; justify-content:flex-end;
+    padding:14px; position:relative; overflow:hidden; margin-bottom:10px; border:1px solid var(--border);
+  }
+  .book-cover::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:8px; background: rgba(0,0,0,.12); }
+  .book-cover .book-icon{ position:absolute; top:14px; right:14px; opacity:.5; }
+  .book-cover .book-icon svg{ width:22px; height:22px; }
+  .book-thumb-icon{ position:absolute; top:14px; left:14px; right:14px; bottom:46px; display:flex; align-items:center; justify-content:center; opacity:.9; }
+  .book-thumb-icon svg{ width:70%; height:70%; max-width:64px; max-height:64px; }
+  .book-cover h4{ font-family: var(--font-display); font-size:14px; font-weight:600; line-height:1.3; position:relative; z-index:1; }
+  .book-meta{ font-size:11.5px; color: var(--text-faint); }
+  .book-meta .pages{ font-family: var(--font-mono); }
+  .cover-coral{ background: linear-gradient(160deg, #ffd7c2, #ffb08f); } .cover-coral h4{ color:#7a2e0e; } .cover-coral .book-thumb-icon{ color:#a8481c; }
+  .cover-teal{ background: linear-gradient(160deg, #bdf0e6, #7fdcc9); } .cover-teal h4{ color:#0a4c40; } .cover-teal .book-thumb-icon{ color:#12816d; }
+  .cover-amber{ background: linear-gradient(160deg, #ffe6b0, #ffc85c); } .cover-amber h4{ color:#7a4c00; } .cover-amber .book-thumb-icon{ color:#a3720a; }
+  .cover-green{ background: linear-gradient(160deg, #cdf0c0, #9adf84); } .cover-green h4{ color:#245712; } .cover-green .book-thumb-icon{ color:#3f7f27; }
+  .cover-primary{ background: linear-gradient(160deg, #d9dcfb, #b1b7f5); } .cover-primary h4{ color:#232a8f; } .cover-primary .book-thumb-icon{ color:#4954e6; }
+  .cover-red{ background: linear-gradient(160deg, #ffd2d2, #ffa3a3); } .cover-red h4{ color:#7a1c1c; } .cover-red .book-thumb-icon{ color:#b33333; }
+  .cover-novel{ background: linear-gradient(160deg, #2b2f4a, #3d4266); } .cover-novel h4{ color:#f2f3fb; } .cover-novel .book-thumb-icon{ color:#9ea3d6; }
+  .cover-novel .book-meta{ color: #b7bbe0; }
+
+  /* ---------- READ: book reader overlay ---------- */
+  .reader-overlay{ position:fixed; inset:0; background: var(--bg); z-index:40; display:none; flex-direction:column; }
+  .reader-overlay.active{ display:flex; }
+  .reader-top{ display:flex; align-items:center; justify-content:space-between; padding:22px 40px 0; }
+  .reader-page-indicator{ font-family: var(--font-mono); font-size:12px; color: var(--text-faint); }
+  .reader-stage{ flex:1; display:flex; align-items:center; justify-content:center; gap:16px; padding:10px 24px 40px; min-height:0; }
+  .reader-page-card{
+    background: var(--surface); border:1px solid var(--border); border-radius: var(--radius);
+    padding:30px 34px; max-width:560px; width:100%; max-height:76vh; overflow-y:auto;
+    box-shadow: 0 10px 30px rgba(20,20,40,.07);
+  }
+  .reader-page-card.pdf-mode{ max-width:760px; padding:16px; max-height:82vh; }
+  .reader-illustration{ aspect-ratio:16/9; border-radius:10px; margin-bottom:20px; display:flex; align-items:center; justify-content:center; }
+  .reader-illustration svg{ width:80px; height:80px; opacity:.55; }
+  .reader-text{ font-size:17px; line-height:2; color: var(--text); }
+  .reader-text.novel-text{ font-size:15px; line-height:1.95; }
+  .reader-text p{ margin-bottom:16px; }
+  .rd-word{ cursor:default; padding-bottom:3px; border-radius:2px; }
+  .rd-word.rd-draft{ background: var(--primary-tint); box-shadow: 0 2px 0 0 var(--primary); }
+  .rd-word.rd-marked{ box-shadow: 0 2px 0 0 var(--amber); }
+  .reader-nav{
+    width:44px; height:44px; border-radius:50%; border:1px solid var(--border); background: var(--surface);
+    color: var(--text-dim); font-size:19px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .reader-nav:hover{ border-color: var(--primary); color: var(--primary); }
+  .reader-nav:disabled{ opacity:.35; cursor:not-allowed; }
+  .reader-nav:disabled:hover{ border-color: var(--border); color: var(--text-dim); }
+  .pen-toggle{
+    width:38px; height:38px; border-radius:50%; border:1px solid var(--border); background: var(--surface);
+    color: var(--text-dim); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; align-self:center;
+  }
+  .pen-toggle svg{ width:17px; height:17px; }
+  .pen-toggle.active{ background: var(--amber-tint); border-color: var(--amber); color:#7a4c00; }
+  .reader-hint{ text-align:center; font-size:12px; color: var(--text-faint); padding-bottom:16px; }
+
+  .pdf-reader-wrap{ position:relative; width:100%; height:78vh; max-height:760px; border-radius:10px; overflow:hidden; background: var(--surface-alt); }
+  .pdf-frame{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); border:none; display:block; }
+  .pdf-text-layer{ position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); overflow:hidden; line-height:1; z-index:2; }
+  .pdf-text-layer span{ color:transparent; position:absolute; white-space:pre; cursor:text; transform-origin:0% 0%; }
+  .pdf-text-layer ::selection{ background: rgba(73,84,230,.35); }
+  .pdf-status{ position:relative; z-index:2; font-size:13px; color: var(--text-faint); text-align:center; padding:0 24px; display:none; }
+  .reader-toolbar{ display:flex; flex-direction:column; gap:8px; align-self:flex-start; margin-top:6px; }
+  .rd-popup{
+    position:fixed; z-index:60; background: var(--text); border-radius:10px; padding:5px; display:flex; gap:3px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.28); transform:translate(-50%,-100%); margin-top:-10px;
+  }
+  .rd-popup button{ background:none; border:none; color:#fff; font-size:12.5px; font-weight:600; padding:9px 13px; border-radius:7px; cursor:pointer; white-space:nowrap; }
+  .rd-popup button:hover{ background: rgba(255,255,255,.16); }
+  .rd-popup .rd-answer{ padding:8px 12px; font-size:13px; font-weight:500; color:#fff; max-width:220px; white-space:normal; }
+  .rd-popup .rd-close{ background:none; border:none; color: rgba(255,255,255,.6); font-size:14px; cursor:pointer; padding:0 6px; }
+
+  /* ---------- HYBRID (task flow) ---------- */
+  .hybrid-page{ display:none; }
+  .hybrid-page.active{ display:block; }
+  .hybrid-flow-wrap{ flex:1; overflow-y:auto; padding: 24px 40px 50px; }
+  .hybrid-flow-inner{ max-width:640px; margin:0 auto; }
+  .step-indicator{ display:flex; align-items:center; gap:8px; margin-bottom:18px; }
+  .step-indicator .step-dot{ width:26px; height:26px; border-radius:50%; background: var(--surface-alt); color: var(--text-faint); font-size:11.5px; font-weight:600; display:flex; align-items:center; justify-content:center; font-family: var(--font-mono); }
+  .step-indicator .step-dot.done{ background: var(--green); color:#fff; }
+  .step-indicator .step-dot.current{ background: var(--primary); color:#fff; }
+  .step-indicator .step-line{ flex:1; height:2px; background: var(--border); }
+  .step-indicator .step-line.done{ background: var(--green); }
+  .step-label{ font-size:12.5px; color: var(--text-faint); font-family: var(--font-mono); margin-bottom:16px; }
+
+  .task-stage{
+    aspect-ratio:16/9; border-radius:14px; background: linear-gradient(135deg, #20233a, #2b2f4a);
+    display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; margin-bottom:10px; cursor:pointer;
+  }
+  .task-stage .waveform-big{ display:flex; align-items:center; gap:5px; height:60px; }
+  .task-stage .waveform-big span{ width:5px; border-radius:3px; background: rgba(255,255,255,.5); }
+  .task-stage .center-play{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+  .task-stage .center-play svg{ width:60px; height:60px; }
+  .task-stage .completed-check{ position:absolute; inset:0; display:none; align-items:center; justify-content:center; background: rgba(18,183,106,.18); }
+  .task-stage .completed-check svg{ width:60px; height:60px; stroke:#fff; }
+  .task-progress-track{ height:5px; background: var(--surface-alt); border-radius:999px; overflow:hidden; margin-bottom:22px; }
+  .task-progress-track i{ display:block; height:100%; width:0%; background: var(--primary); transition: width .1s linear; }
+  .task-title{ font-family: var(--font-display); font-size:19px; font-weight:600; margin-bottom:6px; }
+  .task-sub{ font-size:13px; color: var(--text-faint); margin-bottom:20px; }
+  .task-hint{ font-size:13px; color: var(--text-dim); text-align:center; }
+
+  .transcript-card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); padding:22px; margin-bottom:22px; }
+  .transcript-line{ display:flex; gap:14px; padding:10px 0; border-bottom:1px solid var(--border); }
+  .transcript-line:last-child{ border-bottom:none; }
+  .transcript-time{ font-family: var(--font-mono); font-size:11.5px; color: var(--text-faint); flex-shrink:0; width:40px; padding-top:2px; }
+  .transcript-text p{ font-size:14px; margin-bottom:2px; }
+  .transcript-text span{ font-size:12.5px; color: var(--text-faint); }
+
+  .flow-btn{ display:block; width:100%; background: var(--primary); color:#fff; border:none; padding:13px; border-radius:12px; font-size:14.5px; font-weight:600; cursor:pointer; }
+  .flow-btn:disabled{ background: var(--surface-alt); color: var(--text-faint); cursor:not-allowed; }
+  .flow-btn.secondary{ background: var(--surface-alt); color: var(--text-dim); }
+
+  .exit-task-btn{ display:inline-flex; align-items:center; gap:6px; background:none; border:none; color: var(--text-dim); font-size:13.5px; cursor:pointer; margin-bottom:16px; padding:6px 4px; }
+  .exit-task-btn svg{ width:16px; height:16px; }
+  .exit-task-btn:hover{ color: var(--primary); }
+
+  @media (max-width: 900px){
+    .player-layout{ flex-direction:column; }
+    .player-side{ width:100%; }
+    .side-card{ }
+  }
+  @media (max-width: 720px){
+    .rail{ width:64px; }
+    .rail-btn{ width:48px; font-size:9px; }
+    .watch-top, .grid-wrap, .player-wrap{ padding-left:20px; padding-right:20px; }
+    .badge-grid{ grid-template-columns: repeat(2,1fr); }
+    .heatmap{ grid-template-columns: repeat(13, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <nav class="rail">
+    <div class="brandmark" aria-hidden="true">
+      <svg viewBox="0 0 34 34" fill="none">
+        <circle cx="17" cy="17" r="16" stroke="#4954e6" stroke-width="1.4"/>
+        <path d="M9 20 L13 12 L17 22 L21 10 L25 20" stroke="#4954e6" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+    <div class="rail-nav">
+      <button class="rail-btn active" data-view="watch">
+        <svg viewBox="0 0 24 24"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        Watch
+      </button>
+      <button class="rail-btn" data-view="hybrid">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="9"/></svg>
+        Hybrid
+      </button>
+      <button class="rail-btn" data-view="ai">
+        <svg viewBox="0 0 24 24"><path d="M12 2l1.8 5.6L19 9l-5.2 1.4L12 16l-1.8-5.6L5 9l5.2-1.4L12 2z"/></svg>
+        AI
+      </button>
+      <button class="rail-btn" data-view="read">
+        <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Read
+      </button>
+      <button class="rail-btn" data-view="profile">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        Profile
+      </button>
+    </div>
+
+    <div class="rail-foot" title="Sreeraj">S</div>
+  </nav>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- ---------- WATCH (video hub, default view) ---------- -->
+    <section id="view-watch" class="view active">
+
+      <div id="watchGridPage">
+        <div class="watch-top">
+          <div class="watch-heading">
+            <h1>Watch</h1>
+            <span class="tagline">/// clips sorted by ear, not by grade</span>
+          </div>
+
+          <div class="search-row">
+            <div class="search-bar">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="text" id="searchInput" placeholder="Search clips, topics, or speakers…">
+            </div>
+            <button class="filter-btn" id="subsBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+              Subscriptions
+            </button>
+          </div>
+
+          <div class="tabs" id="tabRow">
+            <button class="tab active" data-level="beginner">Beginner</button>
+            <button class="tab" data-level="intermediate">Intermediate</button>
+            <button class="tab" data-level="advanced">Advanced</button>
+            <button class="tab" data-level="history">History</button>
+          </div>
+        </div>
+
+        <div class="grid-wrap">
+          <div class="video-grid" id="videoGrid"></div>
+        </div>
+      </div>
+
+      <!-- ---------- single video watch page ---------- -->
+      <div id="watchPlayerPage" class="player-wrap" style="display:none;">
+        <button class="back-btn" id="backToGrid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to Watch
+        </button>
+
+        <div class="player-layout">
+          <div class="player-main">
+            <div class="player-stage" id="playerStage">
+              <div class="waveform-big" id="playerWaveform"></div>
+              <div class="center-play" id="playerCenterPlay">
+                <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="rgba(0,0,0,.45)"/><path d="M26 20l20 12-20 12V20z" fill="#fff"/></svg>
+              </div>
+            </div>
+
+            <h1 class="player-title" id="playerTitle">Ordering coffee in Paris</h1>
+            <div class="player-meta-txt" id="playerMetaTxt">4,102 views · beginner clip</div>
+
+            <div class="player-subrow">
+              <div class="channel-row">
+                <div class="avatar channel-clickable" id="playerAvatar">A</div>
+                <div class="channel-info channel-clickable" id="playerChannelInfo">
+                  <h4 id="playerSpeaker">Amelie</h4>
+                  <span>18.4k learners</span>
+                </div>
+                <button class="subscribe-btn" id="subscribeBtn">Subscribe</button>
+              </div>
+              <div class="action-row">
+                <button class="action-btn" id="likeBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 22V11M2 13v7a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-1.6l1.2-6A2 2 0 0 0 17.7 12H14V6a2 2 0 0 0-2-2h-.5L7 11"/></svg>
+                  Like
+                </button>
+                <button class="action-btn" id="shareBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg>
+                  Share
+                </button>
+                <button class="action-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></svg>
+                  Save
+                </button>
+              </div>
+            </div>
+
+            <div class="player-desc" id="playerDesc">
+              A short comprehensible-input clip for practising real cafe conversation. Keep the audio playing and read along at your own pace — no direct translations, just contextual glosses.
+            </div>
+
+            <div class="comments-head">Comments <span id="commentCount">· 3</span></div>
+            <div class="comment-input-row">
+              <input type="text" id="commentInput" placeholder="Add a comment…">
+              <button id="commentBtn">Post</button>
+            </div>
+            <div id="commentList"></div>
+          </div>
+
+          <aside class="player-side">
+            <div class="side-title">Recommended</div>
+            <div id="recommendedList" style="display:flex; flex-direction:column; gap:16px;"></div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- ---------- subscriptions page ---------- -->
+      <div id="watchSubsPage" class="player-wrap" style="display:none;">
+        <button class="back-btn" id="backFromSubs">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to Watch
+        </button>
+        <h1 class="channel-name" style="margin-bottom:18px;">Subscriptions</h1>
+        <div id="subsList" style="display:flex; flex-direction:column; gap:4px; max-width:480px;"></div>
+      </div>
+
+      <!-- ---------- channel page ---------- -->
+      <div id="watchChannelPage" class="player-wrap" style="display:none;">
+        <button class="back-btn" id="backFromChannel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+          Back to Watch
+        </button>
+        <div class="channel-header">
+          <div class="avatar channel-avatar-big" id="channelAvatar">A</div>
+          <div>
+            <h1 class="channel-name" id="channelName">Amelie</h1>
+            <div class="channel-sub" id="channelSub">0 videos</div>
+          </div>
+          <button class="subscribe-btn" id="channelSubscribeBtn">Subscribe</button>
+        </div>
+        <div class="video-grid" id="channelGrid"></div>
+      </div>
+
+    </section>
+
+    <!-- ---------- HYBRID (task flow) ---------- -->
+    <section id="view-hybrid" class="view">
+
+      <!-- Task grid, styled like Watch -->
+      <div id="hybridTaskGrid" class="hybrid-page active">
+        <div class="watch-top">
+          <div class="watch-heading">
+            <h1>Hybrid</h1>
+            <span class="tagline">/// watch, read, rewatch, speak — in that order</span>
+          </div>
+        </div>
+        <div class="grid-wrap">
+          <div class="video-grid" id="hybridGrid"></div>
+        </div>
+      </div>
+
+      <!-- Step flow -->
+      <div id="hybridFlow" class="hybrid-page">
+        <div class="hybrid-flow-wrap">
+          <div class="hybrid-flow-inner">
+            <button class="exit-task-btn" id="hybridExitBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+              Exit task
+            </button>
+
+            <div class="step-indicator" id="hybridSteps">
+              <div class="step-dot" data-step="1">1</div><div class="step-line"></div>
+              <div class="step-dot" data-step="2">2</div><div class="step-line"></div>
+              <div class="step-dot" data-step="3">3</div><div class="step-line"></div>
+              <div class="step-dot" data-step="4">4</div>
+            </div>
+
+            <!-- Step 1: watch -->
+            <div class="hybrid-step" id="hybridStep1">
+              <div class="step-label">Step 1 · Watch</div>
+              <div class="task-stage" id="hybridStage1">
+                <div class="waveform-big" id="hybridWave1"></div>
+                <div class="center-play" id="hybridPlay1"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="30" fill="rgba(0,0,0,.45)"/><path d="M24 18l19 12-19 12V18z" fill="#fff"/></svg></div>
+                <div class="completed-check" id="hybridCheck1"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg></div>
+              </div>
+              <div class="task-progress-track"><i id="hybridProgress1"></i></div>
+              <div class="task-title" id="hybridTitle1"></div>
+              <div class="task-sub" id="hybridSub1"></div>
+              <div class="task-hint">Tap the clip to play. It'll move on once it's finished.</div>
+            </div>
+
+            <!-- Step 2: transcript -->
+            <div class="hybrid-step" id="hybridStep2" style="display:none;">
+              <div class="step-label">Step 2 · Transcript</div>
+              <div class="task-title" id="hybridTitle2" style="margin-bottom:16px;"></div>
+              <div class="transcript-card" id="hybridTranscript"></div>
+              <button class="flow-btn" id="hybridToStep3">Continue to rewatch</button>
+            </div>
+
+            <!-- Step 3: rewatch -->
+            <div class="hybrid-step" id="hybridStep3" style="display:none;">
+              <div class="step-label">Step 3 · Rewatch</div>
+              <div class="task-stage" id="hybridStage3">
+                <div class="waveform-big" id="hybridWave3"></div>
+                <div class="center-play" id="hybridPlay3"><svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="30" fill="rgba(0,0,0,.45)"/><path d="M24 18l19 12-19 12V18z" fill="#fff"/></svg></div>
+                <div class="completed-check" id="hybridCheck3"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg></div>
+              </div>
+              <div class="task-progress-track"><i id="hybridProgress3"></i></div>
+              <div class="task-title" id="hybridTitle3"></div>
+              <div class="task-hint">Now that you've read the transcript, watch it again — it should land differently.</div>
+            </div>
+
+            <!-- Step 4: speak -->
+            <div class="hybrid-step" id="hybridStep4" style="display:none;">
+              <div class="step-label">Step 4 · Speak</div>
+              <div class="speak-stage" style="padding:10px 0 20px;">
+                <div class="character" id="hybridCharacter">
+                  <div class="ring"></div>
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                </div>
+                <div>
+                  <div class="speak-name" id="hybridSpeakerName"></div>
+                  <div class="speak-status" id="hybridSpeakStatus">Tap the mic and repeat the sentence out loud</div>
+                </div>
+                <button class="mic-btn" id="hybridMicBtn" aria-label="Toggle microphone">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 19v3"/></svg>
+                </button>
+                <div class="speak-transcript" id="hybridSpeakTranscript"></div>
+              </div>
+              <button class="flow-btn" id="hybridFinishBtn" disabled>Complete task</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ---------- AI: redirect to ChatGPT ---------- -->
+    <section id="view-ai" class="view">
+      <div class="placeholder-view">
+        <div class="icon-ring"><svg viewBox="0 0 24 24"><path d="M12 2l1.8 5.6L19 9l-5.2 1.4L12 16l-1.8-5.6L5 9l5.2-1.4L12 2z"/></svg></div>
+        <h2>Practice with ChatGPT</h2>
+        <p>Accent's AI tutor now opens in ChatGPT — chat or talk through French practice there, then bring what you learn back to Watch, Hybrid, and Read.</p>
+        <a href="https://chatgpt.com" target="_blank" rel="noopener" class="flow-btn" style="width:auto; padding:12px 28px; text-decoration:none; display:inline-block;">Open ChatGPT</a>
+      </div>
+    </section>
+
+    <!-- ---------- READ ---------- -->
+    <section id="view-read" class="view">
+      <div class="watch-top">
+        <div class="watch-heading">
+          <h1>Read</h1>
+          <span class="tagline">/// pick a level to start reading</span>
+        </div>
+        <div class="tabs" id="readTabRow">
+          <button class="tab active" data-read="beginner">Beginner</button>
+          <button class="tab" data-read="intermediate">Intermediate</button>
+          <button class="tab" data-read="advance">Advance</button>
+        </div>
+      </div>
+
+      <div class="grid-wrap">
+
+        <!-- Beginner: spaced-repetition, whole sentences + image + translation -->
+        <div id="readBeginner" class="read-panel active">
+          <div class="srs-wrap">
+            <div class="srs-counter" id="srsCounter">1 / 6</div>
+            <div class="sentence-card">
+              <div class="sentence-image" id="srsImage"></div>
+              <div class="sentence-text" id="srsSentence"></div>
+              <div class="sentence-translation" id="srsTranslation"></div>
+              <button class="reveal-btn" id="srsRevealBtn">Show translation</button>
+              <div class="srs-controls" id="srsControls" style="display:none;">
+                <button class="srs-btn again" id="srsAgain">Still learning</button>
+                <button class="srs-btn good" id="srsGood">Got it</button>
+              </div>
+            </div>
+            <div class="srs-dots" id="srsDots"></div>
+          </div>
+        </div>
+
+        <!-- Intermediate: children's cartoon books -->
+        <div id="readIntermediate" class="read-panel">
+          <div class="book-grid" id="childrenBookGrid"></div>
+        </div>
+
+        <!-- Advance: novels and books -->
+        <div id="readAdvance" class="read-panel">
+          <div class="book-grid" id="novelBookGrid"></div>
+        </div>
+
+      </div>
+
+      <!-- Book reader overlay: storybook (intermediate) & novel (advance) -->
+      <div class="reader-overlay" id="readerOverlay">
+        <div class="reader-top">
+          <button class="exit-task-btn" id="readerExitBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M15 18l-6-6 6-6"/></svg>
+            Close book
+          </button>
+          <div class="reader-page-indicator" id="readerPageIndicator"></div>
+        </div>
+        <div class="reader-stage">
+          <button class="reader-nav" id="readerPrevBtn" aria-label="Previous page">‹</button>
+          <div class="reader-page-card">
+            <div class="reader-illustration" id="readerIllustration"></div>
+            <div class="reader-text" id="readerText"></div>
+            <div class="pdf-reader-wrap" id="pdfReaderWrap" style="display:none;">
+              <canvas class="pdf-frame" id="pdfRenderCanvas"></canvas>
+              <div class="pdf-text-layer textLayer" id="pdfTextLayer"></div>
+              <div class="pdf-status" id="pdfStatus"></div>
+            </div>
+          </div>
+          <div class="reader-toolbar">
+            <button class="pen-toggle" id="readerPenToggle" title="Pen tool">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </button>
+          </div>
+          <button class="reader-nav" id="readerNextBtn" aria-label="Next page">›</button>
+        </div>
+        <div class="reader-hint" id="readerHint">Tap the pen, then drag under a word or sentence to look it up.</div>
+      </div>
+
+    </section>
+
+    <!-- ---------- PROFILE (gamified, real account data) ---------- -->
+    <section id="view-profile" class="view">
+      <div class="profile-shell">
+
+        <div class="account-card" id="accountCard">
+          <!-- signed out state -->
+          <div id="acctSignedOut">
+
+            <div id="acctChoice">
+              <div class="account-title">Sign in to save your progress</div>
+              <p class="account-sub">One account for the whole app — Watch history, subscriptions, XP, streak, and reader progress all sync across any device you sign into.</p>
+              <div class="acct-row">
+                <button class="flow-btn" id="acctChooseSignUp">Create account</button>
+              </div>
+              <div class="acct-row">
+                <button class="flow-btn secondary" id="acctChooseSignIn">Sign in</button>
+              </div>
+            </div>
+
+            <div id="acctForm" style="display:none;">
+              <button class="exit-task-btn" id="acctBackBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>Back</button>
+              <div class="account-title" id="acctTitle">Create your account</div>
+              <p class="account-sub" id="acctSub">One account for the whole app — Watch history, subscriptions, XP, streak, and reader progress all sync across any device you sign into.</p>
+              <div class="acct-row" id="acctNameRow" style="display:none;">
+                <input type="text" id="acctName" placeholder="Full name" autocomplete="name">
+              </div>
+              <div class="acct-row" id="acctAgeRow" style="display:none;">
+                <input type="number" id="acctAge" placeholder="Age" min="1" max="120" autocomplete="off">
+              </div>
+              <div class="acct-row">
+                <input type="email" id="acctEmail" placeholder="Email" autocomplete="email">
+              </div>
+              <div class="acct-row">
+                <input type="password" id="acctPassword" placeholder="Password" autocomplete="current-password">
+              </div>
+              <div class="acct-row" id="acctConfirmRow" style="display:none;">
+                <input type="password" id="acctConfirmPassword" placeholder="Confirm password" autocomplete="new-password">
+              </div>
+              <div class="acct-row">
+                <button class="flow-btn" id="acctSubmitBtn">Create account</button>
+              </div>
+              <div class="account-status" id="acctStatus"></div>
+              <p class="acct-switch-line" id="acctSwitchLine">Already have an account? <a id="acctSwitchLink">Sign in</a></p>
+            </div>
+
+          </div>
+        </div>
+
+        <div id="profileSignedInWrap" style="display:none;">
+          <div class="profile-head">
+            <div class="profile-avatar" id="profileAvatar">S<span class="level-badge" id="profileLevelBadge">LV 1</span></div>
+            <div>
+              <h2 id="profileName">Learner</h2>
+              <p id="profileSub">learning French</p>
+            </div>
+            <button class="profile-edit-btn" id="profileSignOutBtn">Sign out</button>
+          </div>
+
+          <div class="pill-row">
+            <div class="stat-pill flame">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 2s5 5.5 5 10a5 5 0 0 1-10 0c0-1.2.5-2 1-3 .3 1 1 1.5 1.5 1 .5-3 1-4.5 2.5-8z"/></svg>
+              <div><b id="profileStreak">0</b><br><span>day streak</span></div>
+            </div>
+            <div class="stat-pill xp">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+              <div><b id="profileXp">0</b><br><span>total XP</span></div>
+            </div>
+            <div class="stat-pill gem">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M6 3h12l4 6-10 12L2 9z"/></svg>
+              <div><b id="profileGems">0</b><br><span>gems</span></div>
+            </div>
+            <div class="stat-pill heart">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 21s-7.5-4.9-10-9.4C.4 8.2 2 4.5 5.6 4a5 5 0 0 1 6.4 2.3A5 5 0 0 1 18.4 4c3.6.5 5.2 4.2 3.6 7.6C19.5 16.1 12 21 12 21z"/></svg>
+              <div><b>5</b><br><span>hearts</span></div>
+            </div>
+          </div>
+
+          <div class="xp-card">
+            <div class="xp-card-top"><b id="profileLevelLabel">Level 1</b><span id="profileXpToNext">0 / 200 XP to level 2</span></div>
+            <div class="xp-track"><i id="profileXpBar" style="width:0%"></i></div>
+          </div>
+
+          <div class="section-title">Leaderboard</div>
+          <div class="league-card" id="leagueCard">
+            <div class="league-row"><span class="league-rank">—</span><div class="sub-name">Loading…</div></div>
+          </div>
+
+          <div class="section-title">Languages</div>
+          <div class="lang-list">
+            <div class="lang-row"><div><div class="name">French</div><div class="sub">Intermediate</div></div><div class="bar-track"><i style="width:64%"></i></div></div>
+            <div class="lang-row"><div><div class="name">ASL</div><div class="sub">Beginner</div></div><div class="bar-track"><i style="width:28%"></i></div></div>
+            <div class="lang-row"><div><div class="name">Japanese</div><div class="sub">Beginner</div></div><div class="bar-track"><i style="width:15%"></i></div></div>
+          </div>
+
+          <div class="section-title">Achievements</div>
+          <div class="badge-grid" id="badgeGrid">
+            <div class="badge locked" data-ach="first_clip"><div class="badge-icon"><svg viewBox="0 0 24 24"><path d="M12 2l1.8 5.6L19 9l-5.2 1.4L12 16l-1.8-5.6L5 9l5.2-1.4L12 2z"/></svg></div><div class="badge-label">First clip</div></div>
+            <div class="badge locked" data-ach="week_streak"><div class="badge-icon"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="9"/></svg></div><div class="badge-label">7 day streak</div></div>
+            <div class="badge locked" data-ach="fifty_clips"><div class="badge-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><div class="badge-label">50 clips watched</div></div>
+            <div class="badge locked" data-ach="fluent"><div class="badge-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></div><div class="badge-label">Fluent tier</div></div>
+          </div>
+
+          <div class="section-title">Activity</div>
+          <div class="heatmap" id="heatmap"></div>
+          <div class="heatmap-legend">less <i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i> more</div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<script type="module">
+  // ================= FIREBASE SETUP =================
+  // Firebase Auth handles login; Firestore stores each signed-in user's real progress
+  // (XP, streak, gems, watch history, subscriptions, achievements, reader progress).
+  const firebaseConfig = {
+    apiKey: "AIzaSyCMRxnPfyvfVq1pKc-CFful-Q_u99kBThw",
+    authDomain: "accent-4e77c.firebaseapp.com",
+    projectId: "accent-4e77c",
+    storageBucket: "accent-4e77c.firebasestorage.app",
+    messagingSenderId: "57699127174",
+    appId: "1:57699127174:web:5f9b0d00e80d5c65d7a607"
+  };
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  let auth = null, db = null, firebaseOk = true;
+  try{
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+  } catch(err){
+    firebaseOk = false;
+  }
+
+  const DEFAULT_PROFILE = {
+    name: "", age: null, xp: 0, level: 1, streak: 0, gems: 0, lastActiveDate: null,
+    watchHistory: [], subscriptions: [], achievements: {}, readerProgress: {}
+  };
+
+  let currentUser = null;
+  let profile = null; // cached copy of the signed-in user's Firestore doc
+
+  function levelForXp(xp){ return Math.max(1, Math.floor(xp / 200) + 1); }
+  function todayStr(){ return new Date().toISOString().slice(0, 10); }
+
+  async function loadOrCreateProfile(uid){
+    const ref = doc(db, "users", uid);
+    const snap = await getDoc(ref);
+    if(snap.exists()){
+      return { ...DEFAULT_PROFILE, ...snap.data() };
+    }
+    const fresh = { ...DEFAULT_PROFILE, email: currentUser.email, name: currentUser.displayName || (currentUser.email || "").split("@")[0] };
+    await setDoc(ref, fresh);
+    return fresh;
+  }
+
+  async function saveProfile(){
+    if(!currentUser) return;
+    await setDoc(doc(db, "users", currentUser.uid), profile, { merge: true });
+    // mirror the bits needed for the leaderboard so it can be queried directly
+    await setDoc(doc(db, "users", currentUser.uid), {
+      name: profile.name || (profile.email || "").split("@")[0], xp: profile.xp
+    }, { merge: true });
+  }
+
+  function bumpStreak(){
+    const today = todayStr();
+    if(profile.lastActiveDate === today) return;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+    profile.streak = (profile.lastActiveDate === yesterday) ? profile.streak + 1 : 1;
+    profile.lastActiveDate = today;
+  }
+
+  if(firebaseOk){
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      profile = null;
+      if(user){
+        try{ profile = await loadOrCreateProfile(user.uid); }
+        catch(err){ profile = { ...DEFAULT_PROFILE, email: user.email }; }
+      }
+      window.dispatchEvent(new CustomEvent('accentauth:change'));
+    });
+  }
+
+  window.AccentAuth = {
+    enabled: firebaseOk,
+    signUp: async (name, age, email, pw) => {
+      const cred = await createUserWithEmailAndPassword(auth, email, pw);
+      await updateProfile(cred.user, { displayName: name });
+      await setDoc(doc(db, "users", cred.user.uid), { ...DEFAULT_PROFILE, email, name, age }, { merge: true });
+      return cred;
+    },
+    signIn: (email, pw) => signInWithEmailAndPassword(auth, email, pw),
+    signOutUser: () => signOut(auth),
+    getUser: () => currentUser,
+    getProfile: () => profile,
+
+    addXp: async (amount) => {
+      if(!currentUser) return;
+      bumpStreak();
+      profile.xp += amount;
+      profile.level = levelForXp(profile.xp);
+      profile.gems += Math.max(1, Math.round(amount / 5));
+      await saveProfile();
+      window.dispatchEvent(new CustomEvent('accentauth:change'));
+    },
+    recordWatch: async (clipId) => {
+      if(!currentUser) return;
+      profile.watchHistory = [clipId, ...profile.watchHistory.filter(id => id !== clipId)].slice(0, 50);
+      await window.AccentAuth.addXp(10);
+    },
+    toggleSubscription: async (name) => {
+      if(!currentUser) return false;
+      const subs = profile.subscriptions.includes(name)
+        ? profile.subscriptions.filter(s => s !== name)
+        : [name, ...profile.subscriptions];
+      profile.subscriptions = subs;
+      await saveProfile();
+      window.dispatchEvent(new CustomEvent('accentauth:change'));
+      return subs.includes(name);
+    },
+    saveReaderProgress: async (bookKey, pageIdx) => {
+      if(!currentUser) return;
+      profile.readerProgress[bookKey] = pageIdx;
+      await saveProfile();
+    },
+    getReaderProgress: (bookKey) => profile ? (profile.readerProgress[bookKey] || 0) : 0,
+
+    getLeaderboard: async () => {
+      try{
+        const q = query(collection(db, "users"), orderBy("xp", "desc"), limit(5));
+        const snap = await getDocs(q);
+        return snap.docs.map(d => ({ name: d.data().name || "Learner", xp: d.data().xp || 0 }));
+      } catch(err){ return []; }
+    }
+  };
+</script>
+
+<script>
+// ---------------- data ----------------
+const CLIPS = {
+  beginner: [
+    {id:"b1", title:"Learn REAL SPANISH: What I wear in Bogotá?", speaker:"Speak Spanish Today", dur:"10:02", pct:0, views:"4,102", videoId:"HyqAwjMINyE"},
+    {id:"b2", title:"EASY Spanish for BEGINNERS | Learn Spanish with Comprehensible Input", speaker:"Speak Spanish Today", dur:"15:31", pct:0, views:"2,910", videoId:"26KRe2Gn4yA"},
+    {id:"b3", title:"A Box I NEVER Throw Away | Learn Spanish Naturally", speaker:"Speak Spanish Today", dur:"15:26", pct:0, views:"8,340", videoId:"syMFDwBlR-o"},
+    {id:"b4", title:"MASTER the SPANISH R Sound | Shadowing Practice", speaker:"Speak Spanish Today", dur:"14:50", pct:0, views:"3,215", videoId:"g27YCet_2DE"},
+    {id:"b5", title:"What’s Hidden on a Colombian 5,000 Peso Bill? | Comprehensible Input", speaker:"Speak Spanish Today", dur:"13:09", pct:0, views:"1,880", videoId:"BAsIQPRonzM"},
+    {id:"b6", title:"The ONLY Spanish Vocabulary You Need for When You're Sick 🤧 Comprehensible Input", speaker:"Speak Spanish Today", dur:"14:10", pct:0, views:"2,105", videoId:"JODxteT6R8Q"},
+    {id:"b7", title:"Beginners Spanish AT HOME | Comprehensible Input", speaker:"Dayis Cubero", dur:"12:06", pct:0, views:"1,640", videoId:"A1TXgH-kcxk"},
+    {id:"b8", title:"SPANISH for BEGINNERS at the forest | comprehensible input", speaker:"Dayis Cubero", dur:"9:08", pct:0, views:"1,390", videoId:"oWVyiIMWL9A"},
+    {id:"b9", title:"SPANISH for BEGINNERS at the beach |Comprehensible Input|", speaker:"Dayis Cubero", dur:"7:06", pct:0, views:"2,760", videoId:"PQ91Ik_R2ck"},
+  ],
+  intermediate: [
+    {id:"i1", title:"Spanish at a Winery | COMPREHENSIBLE INPUT intermediate", speaker:"Dayis Cubero", dur:"12:13", pct:0, views:"1,920", videoId:"KhY2mP2O5WQ"},
+    {id:"i2", title:"LEARN SPANISH at a FOOD FESTIVAL 🇨🇦 | Comprehensible Input Intermediate", speaker:"Dayis Cubero", dur:"9:47", pct:0, views:"1,510", videoId:"SYYclH1KXkc"},
+    {id:"i3", title:"LEARN INTERMEDIATE SPANISH at the movies| (Comprehensible input)| Emotions & feelings", speaker:"Dayis Cubero", dur:"7:40", pct:0, views:"1,340", videoId:"p8LW0KGA9vU"},
+    {id:"i4", title:"It’s Baking Time! | Comprehensible Input for Intermediates", speaker:"Organic Spanish", dur:"19:21", pct:0, views:"2,080", videoId:"F1ROUBBheGQ"},
+    {id:"i5", title:"Stop worrying about what people say | Spanish story for Intermediates", speaker:"Organic Spanish", dur:"8:32", pct:0, views:"1,760", videoId:"4pBiXf4wpHY"},
+    {id:"i6", title:"SPANISH STORY FOR INTERMEDIATE LEARNERS | COMPREHENSIBLE INPUT", speaker:"Organic Spanish", dur:"5:02", pct:0, views:"980", videoId:"9PmUxa1-WkY"},
+  ],
+  advanced: [
+    {id:"a1", title:"Is Mexico Safe? - Advanced Spanish", speaker:"Dreaming Spanish", dur:"13:18", pct:0, views:"860", videoId:"UEZ-QKOOhJ8"},
+    {id:"a2", title:"Playing Among Us - Advanced Spanish", speaker:"Dreaming Spanish", dur:"15:43", pct:0, views:"1,120", videoId:"JXs0wpiaaTw"},
+    {id:"a3", title:"Eating out in the Beverly Hills of Mexico - Advanced Spanish", speaker:"Dreaming Spanish", dur:"13:29", pct:0, views:"1,430", videoId:"FbzSztEoNYk"},
+    {id:"a4", title:"I Was Chased by Swans! | Slow Spanish Podcast Ep#79", speaker:"Andrea la Mexicana", dur:"8:32", pct:0, views:"760", videoId:"I8TISGS7vHA"},
+    {id:"a5", title:"The Bike from Hell | Slow Spanish Podcast Ep#73", speaker:"Andrea la Mexicana", dur:"12:10", pct:0, views:"3,040", videoId:"lK0SL9TMMy0"},
+    {id:"a6", title:"Exploring The Sunshine Coast in SPANISH! (Weekend Vlog)", speaker:"Andrea la Mexicana", dur:"21:43", pct:0, views:"2,210", videoId:"YLd1IvfBf7k"},
+  ],
+};
+const ALL_CLIPS = Object.entries(CLIPS).flatMap(([level, items]) => items.map(c => ({...c, level})));
+
+const levelClass = { beginner:"level-beginner", intermediate:"level-intermediate", advanced:"level-advanced", history:"level-history" };
+
+// ---------------- WATCH: history (Firestore when signed in, else local) ----------------
+const HISTORY_KEY = 'accent_watch_history';
+let localHistory = (() => { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch(e){ return []; } })();
+
+function getWatchHistory(){
+  const user = window.AccentAuth && window.AccentAuth.getUser && window.AccentAuth.getUser();
+  const profile = user && window.AccentAuth.getProfile && window.AccentAuth.getProfile();
+  return profile ? profile.watchHistory : localHistory;
+}
+function addToWatchHistory(id){
+  const user = window.AccentAuth && window.AccentAuth.getUser && window.AccentAuth.getUser();
+  if(user && window.AccentAuth.recordWatch){
+    window.AccentAuth.recordWatch(id); // mutates the cached profile synchronously, saves in the background
+  } else {
+    localHistory = [id, ...localHistory.filter(h => h !== id)].slice(0, 50);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(localHistory));
+  }
+  updateHistoryCount();
+}
+function updateHistoryCount(){
+  const el = document.querySelector('.tab[data-level="history"] .count');
+  if(el) el.textContent = getWatchHistory().length;
+}
+function getGridItems(level){
+  if(level === 'history'){
+    return getWatchHistory().map(id => ALL_CLIPS.find(c => c.id === id)).filter(Boolean);
+  }
+  return ALL_CLIPS.filter(c => c.level === level);
+}
+
+// ---------------- WATCH: subscriptions (Firestore when signed in, else local) ----------------
+const SUBS_KEY = 'accent_subscriptions';
+let localSubs = (() => { try { return JSON.parse(localStorage.getItem(SUBS_KEY)) || []; } catch(e){ return []; } })();
+
+function getSubs(){
+  const user = window.AccentAuth && window.AccentAuth.getUser && window.AccentAuth.getUser();
+  const profile = user && window.AccentAuth.getProfile && window.AccentAuth.getProfile();
+  return profile ? profile.subscriptions : localSubs;
+}
+function isSubscribed(name){ return getSubs().includes(name); }
+function toggleSub(name){
+  const user = window.AccentAuth && window.AccentAuth.getUser && window.AccentAuth.getUser();
+  if(user && window.AccentAuth.toggleSubscription){
+    window.AccentAuth.toggleSubscription(name); // mutates the cached profile synchronously, saves in the background
+  } else {
+    localSubs = localSubs.includes(name) ? localSubs.filter(s => s !== name) : [name, ...localSubs];
+    localStorage.setItem(SUBS_KEY, JSON.stringify(localSubs));
+  }
+  return isSubscribed(name);
+}
+function renderSubsPage(){
+  const list = document.getElementById('subsList');
+  const subs = getSubs();
+  if(subs.length === 0){
+    list.innerHTML = `<div style="text-align:center;color:var(--text-faint);padding:30px 0;font-size:13.5px;">You haven't subscribed to any channels yet — tap Subscribe on a video or channel page.</div>`;
+    return;
+  }
+  list.innerHTML = subs.map(name => {
+    const count = ALL_CLIPS.filter(c => c.speaker === name).length;
+    return `
+      <div class="sub-row" data-name="${name}">
+        <div class="avatar">${name[0]}</div>
+        <div class="sub-name">${name}</div>
+        <div class="sub-count">${count} video${count === 1 ? '' : 's'}</div>
+      </div>
+    `;
+  }).join('');
+  list.querySelectorAll('.sub-row').forEach(row => {
+    row.addEventListener('click', () => openChannel(row.dataset.name));
+  });
+}
+
+const SAMPLE_COMMENTS = [
+  {name:"Hugo", time:"2d ago", text:"The pace here is perfect for beginners, thanks for this!", likes:14},
+  {name:"Claire", time:"5d ago", text:"Could you do one on ordering pastries next?", likes:6},
+  {name:"Marc", time:"1w ago", text:"Rewatched this three times before it finally clicked.", likes:9},
+];
+
+function rngSeq(seed, count, min, max){
+  const out = []; let s = seed;
+  for(let i=0;i<count;i++){ s = (s*9301+49297)%233280; out.push(min + Math.round((s/233280)*(max-min))); }
+  return out;
+}
+
+// ---------------- WATCH: grid ----------------
+function renderGrid(level){
+  const grid = document.getElementById('videoGrid');
+  grid.innerHTML = "";
+  const items = getGridItems(level);
+  if(level === 'history' && items.length === 0){
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--text-faint);padding:40px 0;font-size:13.5px;">No watch history yet — videos you watch in Beginner, Intermediate, or Advanced will show up here.</div>`;
+    return;
+  }
+  items.forEach((clip, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const progress = clip.pct > 0 ? `<div class="progress-bar"><i style="width:${clip.pct}%"></i></div>` : '';
+    let thumbInner;
+    if(clip.videoId){
+      thumbInner = `<img src="https://img.youtube.com/vi/${clip.videoId}/mqdefault.jpg" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+      const heights = rngSeq(i + level.length, 18, 6, 28);
+      const bars = heights.map(h => `<span style="height:${h}px"></span>`).join('');
+      thumbInner = `<div class="waveform">${bars}</div>`;
+    }
+    card.innerHTML = `
+      <div class="thumb">
+        ${thumbInner}
+        <div class="play-badge"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="rgba(0,0,0,.5)"/><path d="M18 14l14 8-14 8V14z" fill="#fff"/></svg></div>
+        <span class="duration">${clip.dur}</span>
+        ${progress}
+      </div>
+      <div class="card-info">
+        <div class="avatar">${clip.speaker[0]}</div>
+        <div class="card-text">
+          <h3>${clip.title}</h3>
+          <div class="card-meta"><span class="level-pill ${levelClass[clip.level]}">${clip.level}</span><span>${clip.speaker}</span></div>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => openVideo(clip.id));
+    card.querySelector('.avatar').addEventListener('click', (e) => {
+      e.stopPropagation();
+      openChannel(clip.speaker);
+    });
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById('tabRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.tab');
+  if(!btn) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderGrid(btn.dataset.level);
+});
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('#videoGrid .card').forEach(card => {
+    const text = card.querySelector('h3').textContent.toLowerCase();
+    card.style.display = text.includes(q) ? '' : 'none';
+  });
+});
+
+// ---------------- WATCH: single player page ----------------
+function openVideo(id){
+  const clip = ALL_CLIPS.find(c => c.id === id);
+  if(!clip) return;
+  addToWatchHistory(id);
+
+  document.getElementById('watchGridPage').style.display = 'none';
+  document.getElementById('watchPlayerPage').style.display = 'block';
+  document.getElementById('watchPlayerPage').scrollTop = 0;
+
+  document.getElementById('playerTitle').textContent = clip.title;
+  document.getElementById('playerMetaTxt').textContent = `${clip.views} views · ${clip.level} clip`;
+  document.getElementById('playerAvatar').textContent = clip.speaker[0];
+  document.getElementById('playerSpeaker').textContent = clip.speaker;
+  const subBtn = document.getElementById('subscribeBtn');
+  subBtn.classList.toggle('subscribed', isSubscribed(clip.speaker));
+  subBtn.textContent = isSubscribed(clip.speaker) ? 'Subscribed' : 'Subscribe';
+  document.getElementById('likeBtn').classList.remove('liked');
+
+  const stage = document.getElementById('playerStage');
+  const isFileProtocol = window.location.protocol === 'file:';
+  if(clip.videoId && !isFileProtocol){
+    stage.innerHTML = `<iframe width="100%" height="100%" style="position:absolute;inset:0;border:0;" src="https://www.youtube.com/embed/${clip.videoId}?rel=0" title="${clip.title.replace(/"/g,'&quot;')}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`;
+  } else if(clip.videoId && isFileProtocol){
+    stage.innerHTML = `
+      <img src="https://img.youtube.com/vi/${clip.videoId}/hqdefault.jpg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55;">
+      <a href="https://www.youtube.com/watch?v=${clip.videoId}" target="_blank" rel="noopener" style="position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none;z-index:1;">
+        <svg viewBox="0 0 64 64" style="width:64px;height:64px;"><circle cx="32" cy="32" r="32" fill="rgba(0,0,0,.55)"/><path d="M26 20l20 12-20 12V20z" fill="#fff"/></svg>
+        <span style="font-family:var(--font-body);font-size:13px;font-weight:600;color:#fff;background:rgba(0,0,0,.55);padding:6px 14px;border-radius:999px;">Watch on YouTube ↗</span>
+      </a>`;
+  } else {
+    const heights = rngSeq(clip.id.length + clip.title.length, 26, 14, 70);
+    stage.innerHTML = `<div class="waveform-big" id="playerWaveform">${heights.map(h => `<span style="height:${h}px"></span>`).join('')}</div>
+      <div class="center-play" id="playerCenterPlay"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="32" fill="rgba(0,0,0,.45)"/><path d="M26 20l20 12-20 12V20z" fill="#fff"/></svg></div>`;
+  }
+
+  document.getElementById('commentCount').textContent = `· ${SAMPLE_COMMENTS.length}`;
+  document.getElementById('commentList').innerHTML = SAMPLE_COMMENTS.map(c => `
+    <div class="comment">
+      <div class="avatar">${c.name[0]}</div>
+      <div class="comment-body">
+        <h5>${c.name}<span>${c.time}</span></h5>
+        <p>${c.text}</p>
+        <div class="comment-likes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 22V11M2 13v7a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-1.6l1.2-6A2 2 0 0 0 17.7 12H14V6a2 2 0 0 0-2-2h-.5L7 11"/></svg>${c.likes}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const recs = ALL_CLIPS.filter(c => c.id !== clip.id).sort(() => 0.5 - Math.random()).slice(0, 6);
+  document.getElementById('recommendedList').innerHTML = recs.map(r => {
+    let thumbInner;
+    if(r.videoId){
+      thumbInner = `<img src="https://img.youtube.com/vi/${r.videoId}/mqdefault.jpg" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+      const h = rngSeq(r.id.length, 12, 5, 16);
+      thumbInner = `<div class="waveform">${h.map(x => `<span style="height:${x}px"></span>`).join('')}</div>`;
+    }
+    return `
+      <div class="side-card" data-id="${r.id}">
+        <div class="side-thumb">${thumbInner}<span class="duration">${r.dur}</span></div>
+        <div class="side-text"><h4>${r.title}</h4><span>${r.speaker} · ${r.views} views</span></div>
+      </div>
+    `;
+  }).join('');
+  document.querySelectorAll('.side-card').forEach(el => el.addEventListener('click', () => openVideo(el.dataset.id)));
+}
+
+document.getElementById('backToGrid').addEventListener('click', () => {
+  document.getElementById('watchPlayerPage').style.display = 'none';
+  document.getElementById('watchGridPage').style.display = 'block';
+});
+
+// ---------------- WATCH: channel page ----------------
+function buildVideoCard(clip){
+  const progress = clip.pct > 0 ? `<div class="progress-bar"><i style="width:${clip.pct}%"></i></div>` : '';
+  const thumbInner = clip.videoId
+    ? `<img src="https://img.youtube.com/vi/${clip.videoId}/mqdefault.jpg" alt="" style="width:100%;height:100%;object-fit:cover;">`
+    : `<div class="waveform">${rngSeq(clip.id.length, 18, 6, 28).map(h => `<span style="height:${h}px"></span>`).join('')}</div>`;
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="thumb">
+      ${thumbInner}
+      <div class="play-badge"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="rgba(0,0,0,.5)"/><path d="M18 14l14 8-14 8V14z" fill="#fff"/></svg></div>
+      <span class="duration">${clip.dur}</span>
+      ${progress}
+    </div>
+    <div class="card-info">
+      <div class="avatar">${clip.speaker[0]}</div>
+      <div class="card-text">
+        <h3>${clip.title}</h3>
+        <div class="card-meta"><span class="level-pill ${levelClass[clip.level]}">${clip.level}</span><span>${clip.speaker}</span></div>
+      </div>
+    </div>
+  `;
+  card.addEventListener('click', () => openVideo(clip.id));
+  card.querySelector('.avatar').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openChannel(clip.speaker);
+  });
+  return card;
+}
+
+function openChannel(speaker){
+  const videos = ALL_CLIPS.filter(c => c.speaker === speaker);
+  document.getElementById('watchGridPage').style.display = 'none';
+  document.getElementById('watchPlayerPage').style.display = 'none';
+  document.getElementById('watchSubsPage').style.display = 'none';
+  document.getElementById('watchChannelPage').style.display = 'block';
+  document.getElementById('watchChannelPage').scrollTop = 0;
+
+  document.getElementById('channelAvatar').textContent = speaker[0];
+  document.getElementById('channelName').textContent = speaker;
+  document.getElementById('channelSub').textContent = `${videos.length} video${videos.length === 1 ? '' : 's'}`;
+  const chBtn = document.getElementById('channelSubscribeBtn');
+  chBtn.classList.toggle('subscribed', isSubscribed(speaker));
+  chBtn.textContent = isSubscribed(speaker) ? 'Subscribed' : 'Subscribe';
+  chBtn.dataset.speaker = speaker;
+
+  const grid = document.getElementById('channelGrid');
+  grid.innerHTML = '';
+  videos.forEach(clip => grid.appendChild(buildVideoCard(clip)));
+}
+
+document.getElementById('playerAvatar').addEventListener('click', () => openChannel(document.getElementById('playerSpeaker').textContent));
+document.getElementById('playerChannelInfo').addEventListener('click', () => openChannel(document.getElementById('playerSpeaker').textContent));
+document.getElementById('backFromChannel').addEventListener('click', () => {
+  document.getElementById('watchChannelPage').style.display = 'none';
+  document.getElementById('watchGridPage').style.display = 'block';
+});
+document.getElementById('channelSubscribeBtn').addEventListener('click', function(){
+  const name = this.dataset.speaker;
+  const subscribed = toggleSub(name);
+  this.classList.toggle('subscribed', subscribed);
+  this.textContent = subscribed ? 'Subscribed' : 'Subscribe';
+});
+
+document.getElementById('subscribeBtn').addEventListener('click', function(){
+  const name = document.getElementById('playerSpeaker').textContent;
+  const subscribed = toggleSub(name);
+  this.classList.toggle('subscribed', subscribed);
+  this.textContent = subscribed ? 'Subscribed' : 'Subscribe';
+});
+
+document.getElementById('subsBtn').addEventListener('click', () => {
+  document.getElementById('watchGridPage').style.display = 'none';
+  document.getElementById('watchPlayerPage').style.display = 'none';
+  document.getElementById('watchChannelPage').style.display = 'none';
+  document.getElementById('watchSubsPage').style.display = 'block';
+  renderSubsPage();
+});
+document.getElementById('backFromSubs').addEventListener('click', () => {
+  document.getElementById('watchSubsPage').style.display = 'none';
+  document.getElementById('watchGridPage').style.display = 'block';
+});
+document.getElementById('likeBtn').addEventListener('click', function(){ this.classList.toggle('liked'); });
+document.getElementById('shareBtn').addEventListener('click', function(){
+  this.textContent = '';
+  this.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 6L9 17l-5-5"/></svg> Copied';
+  setTimeout(() => { this.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg> Share'; }, 1800);
+});
+document.getElementById('commentBtn').addEventListener('click', postComment);
+document.getElementById('commentInput').addEventListener('keydown', (e) => { if(e.key === 'Enter') postComment(); });
+function postComment(){
+  const input = document.getElementById('commentInput');
+  const text = input.value.trim();
+  if(!text) return;
+  const row = document.createElement('div');
+  row.className = 'comment';
+  row.innerHTML = `
+    <div class="avatar">S</div>
+    <div class="comment-body">
+      <h5>Sreeraj<span>just now</span></h5>
+      <p>${text}</p>
+      <div class="comment-likes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 22V11M2 13v7a2 2 0 0 0 2 2h12.5a2 2 0 0 0 2-1.6l1.2-6A2 2 0 0 0 17.7 12H14V6a2 2 0 0 0-2-2h-.5L7 11"/></svg>0</div>
+    </div>
+  `;
+  document.getElementById('commentList').prepend(row);
+  input.value = '';
+  const countEl = document.getElementById('commentCount');
+  const n = parseInt(countEl.textContent.replace('· ','')) + 1;
+  countEl.textContent = `· ${n}`;
+}
+
+// ---------------- ACCOUNT / PROFILE: login + real gamified stats ----------------
+function achievementUnlocked(id, profile){
+  if(!profile) return false;
+  if(id === 'first_clip') return profile.watchHistory.length >= 1;
+  if(id === 'week_streak') return profile.streak >= 7;
+  if(id === 'fifty_clips') return profile.watchHistory.length >= 50;
+  if(id === 'fluent') return profile.xp >= 5000;
+  return false;
+}
+
+async function renderProfile(){
+  const user = window.AccentAuth && window.AccentAuth.getUser && window.AccentAuth.getUser();
+  const accountCard = document.getElementById('accountCard');
+  const signedInWrap = document.getElementById('profileSignedInWrap');
+
+  if(!window.AccentAuth || window.AccentAuth.enabled === false){
+    accountCard.style.display = 'block';
+    signedInWrap.style.display = 'none';
+    if(typeof showAcctChoice === 'function') showAcctChoice();
+    return;
+  }
+
+  if(!user){
+    accountCard.style.display = 'block';
+    signedInWrap.style.display = 'none';
+    if(typeof showAcctChoice === 'function') showAcctChoice();
+    return;
+  }
+
+  accountCard.style.display = 'none';
+  signedInWrap.style.display = 'block';
+
+  const profile = window.AccentAuth.getProfile() || { xp: 0, level: 1, streak: 0, gems: 0, watchHistory: [], subscriptions: [] };
+
+  const displayName = profile.name || user.displayName || user.email.split('@')[0];
+  document.getElementById('profileAvatar').firstChild.textContent = displayName[0].toUpperCase();
+  document.getElementById('profileLevelBadge').textContent = 'LV ' + profile.level;
+  document.getElementById('profileName').textContent = displayName;
+  document.getElementById('profileSub').textContent = 'learning French';
+  document.getElementById('profileStreak').textContent = profile.streak;
+  document.getElementById('profileXp').textContent = profile.xp.toLocaleString();
+  document.getElementById('profileGems').textContent = profile.gems.toLocaleString();
+  document.getElementById('profileLevelLabel').textContent = 'Level ' + profile.level;
+
+  const thisLevelFloor = (profile.level - 1) * 200;
+  const nextLevelXp = profile.level * 200;
+  const intoLevel = profile.xp - thisLevelFloor;
+  document.getElementById('profileXpToNext').textContent = `${intoLevel} / 200 XP to level ${profile.level + 1}`;
+  document.getElementById('profileXpBar').style.width = Math.min(100, (intoLevel / 200) * 100) + '%';
+
+  document.querySelectorAll('#badgeGrid .badge').forEach(badge => {
+    badge.classList.toggle('locked', !achievementUnlocked(badge.dataset.ach, profile));
+  });
+
+  const league = await window.AccentAuth.getLeaderboard();
+  const card = document.getElementById('leagueCard');
+  if(league.length === 0){
+    card.innerHTML = `<div class="league-row"><div class="sub-name">Be the first on the leaderboard — keep watching and reading to earn XP.</div></div>`;
+  } else {
+    card.innerHTML = league.map((row, i) => {
+      const isMe = row.name === displayName;
+      return `<div class="league-row ${isMe ? 'me' : ''}"><span class="league-rank">${i + 1}</span><div class="avatar">${row.name[0].toUpperCase()}</div><span class="league-name">${row.name}${isMe ? ' (you)' : ''}</span><span class="league-xp">${row.xp.toLocaleString()} XP</span></div>`;
+    }).join('');
+  }
+}
+window.addEventListener('accentauth:change', renderProfile);
+renderProfile();
+setTimeout(renderProfile, 1500);
+
+const AUTH_ERROR_MESSAGES = {
+  'auth/email-already-in-use': 'An account with this email already exists — try signing in instead.',
+  'auth/invalid-email': 'That email address doesn\'t look right.',
+  'auth/weak-password': 'Password should be at least 6 characters.',
+  'auth/wrong-password': 'Incorrect password — try again.',
+  'auth/invalid-credential': 'Incorrect email or password.',
+  'auth/user-not-found': 'No account found with that email — try creating one instead.',
+  'auth/too-many-requests': 'Too many attempts — please wait a moment and try again.',
+  'auth/network-request-failed': 'Network error — check your connection and try again.'
+};
+function friendlyAuthError(err){
+  const code = err && err.code;
+  return AUTH_ERROR_MESSAGES[code] || (err && err.message ? err.message.replace('Firebase: ', '').replace(/\s*\(auth\/[a-z-]+\)\.?/i, '') : 'Something went wrong — please try again.');
+}
+
+let acctMode = 'signin';
+function showAcctForm(mode){
+  acctMode = mode;
+  document.getElementById('acctChoice').style.display = 'none';
+  document.getElementById('acctForm').style.display = 'block';
+  document.getElementById('acctNameRow').style.display = mode === 'signup' ? 'flex' : 'none';
+  document.getElementById('acctAgeRow').style.display = mode === 'signup' ? 'flex' : 'none';
+  document.getElementById('acctConfirmRow').style.display = mode === 'signup' ? 'flex' : 'none';
+  document.getElementById('acctPassword').setAttribute('autocomplete', mode === 'signup' ? 'new-password' : 'current-password');
+  document.getElementById('acctTitle').textContent = mode === 'signup' ? 'Create your account' : 'Sign in to save your progress';
+  document.getElementById('acctSub').textContent = mode === 'signup'
+    ? 'One account for the whole app — Watch history, subscriptions, XP, streak, and reader progress all sync across any device you sign into.'
+    : 'Welcome back — sign in to pick up right where you left off.';
+  document.getElementById('acctSubmitBtn').textContent = mode === 'signup' ? 'Create account' : 'Sign in';
+  document.getElementById('acctSwitchLine').innerHTML = mode === 'signup'
+    ? 'Already have an account? <a id="acctSwitchLink">Sign in</a>'
+    : 'Don\'t have an account? <a id="acctSwitchLink">Create one</a>';
+  document.getElementById('acctStatus').textContent = '';
+  document.getElementById('acctStatus').className = 'account-status';
+  document.getElementById('acctSwitchLink').addEventListener('click', () => showAcctForm(mode === 'signup' ? 'signin' : 'signup'));
+}
+function showAcctChoice(){
+  document.getElementById('acctForm').style.display = 'none';
+  document.getElementById('acctChoice').style.display = 'block';
+  document.getElementById('acctName').value = '';
+  document.getElementById('acctAge').value = '';
+  document.getElementById('acctEmail').value = '';
+  document.getElementById('acctPassword').value = '';
+  document.getElementById('acctConfirmPassword').value = '';
+}
+document.getElementById('acctChooseSignUp').addEventListener('click', () => showAcctForm('signup'));
+document.getElementById('acctChooseSignIn').addEventListener('click', () => showAcctForm('signin'));
+document.getElementById('acctBackBtn').addEventListener('click', showAcctChoice);
+
+document.getElementById('acctSubmitBtn').addEventListener('click', async () => {
+  const status = document.getElementById('acctStatus');
+  if(!window.AccentAuth || !window.AccentAuth.enabled){ status.className = 'account-status error'; status.textContent = 'Still loading — try again in a moment.'; return; }
+
+  const name = document.getElementById('acctName').value.trim();
+  const age = document.getElementById('acctAge').value;
+  const email = document.getElementById('acctEmail').value.trim();
+  const pw = document.getElementById('acctPassword').value;
+  const confirmPw = document.getElementById('acctConfirmPassword').value;
+
+  if(!email || !pw){
+    status.className = 'account-status error'; status.textContent = 'Please fill in your email and password.'; return;
+  }
+
+  if(acctMode === 'signup'){
+    if(!name){ status.className = 'account-status error'; status.textContent = 'Please enter your name.'; return; }
+    if(!age || Number(age) < 1 || Number(age) > 120){ status.className = 'account-status error'; status.textContent = 'Please enter a valid age.'; return; }
+    if(pw.length < 6){ status.className = 'account-status error'; status.textContent = 'Password should be at least 6 characters.'; return; }
+    if(pw !== confirmPw){ status.className = 'account-status error'; status.textContent = 'Passwords don\'t match.'; return; }
+    status.className = 'account-status'; status.textContent = 'Creating account…';
+    try{
+      await window.AccentAuth.signUp(name, Number(age), email, pw);
+      status.textContent = '';
+    } catch(err){
+      status.className = 'account-status error';
+      status.textContent = friendlyAuthError(err);
+    }
+  } else {
+    status.className = 'account-status'; status.textContent = 'Signing in…';
+    try{
+      await window.AccentAuth.signIn(email, pw);
+      status.textContent = '';
+    } catch(err){
+      status.className = 'account-status error';
+      status.textContent = friendlyAuthError(err);
+    }
+  }
+});
+document.getElementById('profileSignOutBtn').addEventListener('click', () => window.AccentAuth && window.AccentAuth.signOutUser());
+
+// ---------------- sidebar nav ----------------
+document.querySelectorAll('.rail-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + btn.dataset.view).classList.add('active');
+    if(btn.dataset.view === 'watch'){
+      document.getElementById('watchPlayerPage').style.display = 'none';
+      document.getElementById('watchChannelPage').style.display = 'none';
+      document.getElementById('watchSubsPage').style.display = 'none';
+      document.getElementById('watchGridPage').style.display = 'block';
+    }
+  });
+});
+
+// ---------------- profile heatmap ----------------
+function renderHeatmap(){
+  const map = document.getElementById('heatmap');
+  if(!map) return;
+  const vals = rngSeq(42, 182, 0, 100);
+  vals.forEach(v => {
+    const cell = document.createElement('i');
+    if(v > 82) cell.className = 'l3';
+    else if(v > 62) cell.className = 'l2';
+    else if(v > 42) cell.className = 'l1';
+    map.appendChild(cell);
+  });
+}
+
+// ---------------- READ: tabs ----------------
+document.getElementById('readTabRow').addEventListener('click', (e) => {
+  const btn = e.target.closest('.tab');
+  if(!btn) return;
+  document.querySelectorAll('#readTabRow .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.read-panel').forEach(p => p.classList.remove('active'));
+  const map = { beginner:'readBeginner', intermediate:'readIntermediate', advance:'readAdvance' };
+  document.getElementById(map[btn.dataset.read]).classList.add('active');
+});
+
+// ---------------- READ: beginner spaced-repetition sentences ----------------
+const SRS_ICONS = {
+  coffee: '<svg viewBox="0 0 24 24"><path d="M4 9h13v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V9z"/><path d="M17 9h2a2 2 0 0 1 0 4h-2"/><path d="M7 3c0 1-1 1-1 2s1 1 1 2"/><path d="M12 3c0 1-1 1-1 2s1 1 1 2"/></svg>',
+  sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>',
+  dog: '<svg viewBox="0 0 24 24"><path d="M5 10c-1.5 0-2-2-1-3s3 0 3 1"/><path d="M19 10c1.5 0 2-2 1-3s-3 0-3 1"/><path d="M6 11a6 6 0 0 1 12 0v2a6 6 0 0 1-12 0v-2z"/><circle cx="9.5" cy="12" r=".6" fill="currentColor"/><circle cx="14.5" cy="12" r=".6" fill="currentColor"/></svg>',
+  book: '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+  train: '<svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="12" rx="3"/><path d="M5 12h14"/><circle cx="9" cy="19" r="1.2"/><circle cx="15" cy="19" r="1.2"/><path d="M7 16l-2 3M17 16l2 3"/></svg>',
+  family: '<svg viewBox="0 0 24 24"><circle cx="8" cy="7" r="2.5"/><circle cx="16" cy="7" r="2.5"/><path d="M3 20c0-3 2.2-5 5-5s5 2 5 5"/><path d="M11 20c0-3 2.2-5 5-5s5 2 5 5"/></svg>'
+};
+const SRS_SENTENCES = [
+  {img:'coffee', fr:"Je voudrais un café, s'il vous plaît.", en:"I would like a coffee, please."},
+  {img:'sun', fr:"Il fait beau aujourd'hui.", en:"The weather is nice today."},
+  {img:'dog', fr:"Mon chien aime courir dans le parc.", en:"My dog loves running in the park."},
+  {img:'book', fr:"Elle lit un livre avant de dormir.", en:"She reads a book before sleeping."},
+  {img:'train', fr:"Le train part dans dix minutes.", en:"The train leaves in ten minutes."},
+  {img:'family', fr:"Toute la famille se retrouve pour le dîner.", en:"The whole family gets together for dinner."}
+];
+let srsIndex = 0;
+
+function renderSrsDots(){
+  const dots = document.getElementById('srsDots');
+  dots.innerHTML = SRS_SENTENCES.map((_, i) => `<i class="${i === srsIndex ? 'active' : ''}" data-i="${i}"></i>`).join('');
+}
+
+function renderSrsCard(){
+  const s = SRS_SENTENCES[srsIndex];
+  document.getElementById('srsCounter').textContent = `${srsIndex + 1} / ${SRS_SENTENCES.length}`;
+  document.getElementById('srsImage').innerHTML = SRS_ICONS[s.img];
+  document.getElementById('srsSentence').textContent = s.fr;
+  document.getElementById('srsTranslation').textContent = '';
+  document.getElementById('srsRevealBtn').style.display = 'block';
+  document.getElementById('srsControls').style.display = 'none';
+  renderSrsDots();
+}
+
+function srsNext(){
+  srsIndex = (srsIndex + 1) % SRS_SENTENCES.length;
+  renderSrsCard();
+}
+
+document.getElementById('srsRevealBtn').addEventListener('click', () => {
+  document.getElementById('srsTranslation').textContent = SRS_SENTENCES[srsIndex].en;
+  document.getElementById('srsRevealBtn').style.display = 'none';
+  document.getElementById('srsControls').style.display = 'flex';
+});
+document.getElementById('srsAgain').addEventListener('click', srsNext);
+document.getElementById('srsGood').addEventListener('click', srsNext);
+
+// ---------------- READ: intermediate children's books ----------------
+const CHILDREN_BOOKS = [
+  {title:"Ogaar Dulce Ogaar", cover:"coral", pdf:"128991-ogaar-dulce-ogaar.pdf"},
+  {title:"Every Rupee Counts", cover:"teal", pdf:"409310-every-rupee-counts.pdf"},
+  {title:"Mina Makes a Dash", cover:"amber", pdf:"409340-mina-makes-a-dash.pdf"},
+  {title:"Teaching Pa", cover:"green", pdf:"414703-teaching-pa.pdf"},
+  {title:"All Jumbled Up", cover:"primary", pdf:"423522-all-jumbled-up.pdf"},
+  {title:"On Mondays I Want to Hide", cover:"red", pdf:"423524-on-mondays-i-want-to-hide.pdf"},
+  {title:"When I Grow Up", cover:"coral", pdf:"432309-when-i-grow-up.pdf"}
+];
+function renderBookGrid(elId, books, isNovel){
+  const grid = document.getElementById(elId);
+  grid.innerHTML = books.map((b, i) => {
+    const icon = READER_ICONS[(b.title.length + i) % READER_ICONS.length];
+    const meta = isNovel ? (b.author + ' · <span class="pages">' + b.pages + 'p</span>') : 'Picture book';
+    return `
+    <div class="book-card" data-idx="${i}">
+      <div class="book-cover ${isNovel ? 'cover-novel' : 'cover-' + b.cover}">
+        <div class="book-thumb-icon">${icon}</div>
+        <h4>${b.title}</h4>
+      </div>
+      <div class="book-meta">${meta}</div>
+    </div>
+  `;
+  }).join('');
+  grid.addEventListener('click', (e) => {
+    const card = e.target.closest('.book-card');
+    if(!card) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const book = books[parseInt(card.dataset.idx)];
+    openReader(book, isNovel);
+  });
+}
+
+// ---------------- READ: advance novels ----------------
+const NOVELS = [
+  {title:"Le Comte de Monte-Cristo", author:"Alexandre Dumas", pages:1276},
+  {title:"L'Étranger", author:"Albert Camus", pages:159},
+  {title:"Le Petit Prince", author:"Antoine de Saint-Exupéry", pages:96},
+  {title:"Madame Bovary", author:"Gustave Flaubert", pages:528},
+  {title:"Les Misérables", author:"Victor Hugo", pages:1462},
+  {title:"La Peste", author:"Albert Camus", pages:308}
+];
+
+// ---------------- READ: book reader (storybook + novel pages, underline lookup) ----------------
+const KIDS_SENTENCES = [
+  "Le petit chat dort sous la table.",
+  "Le dragon aime manger des fraises.",
+  "Minouche saute par-dessus la barrière.",
+  "Le robot cherche son ami perdu.",
+  "Les trois amis jouent dans le jardin.",
+  "La forêt est pleine de secrets.",
+  "Capitaine Carotte sauve le village.",
+  "Le lapin porte un grand chapeau."
+];
+const NOVEL_SENTENCES = [
+  "Le vieux marin regardait la mer sans dire un mot.",
+  "Elle traversa la ville déserte avant l'aube.",
+  "Le silence pesait plus lourd que les mots jamais prononcés.",
+  "Il se souvenait de chaque rue, chaque ombre, chaque adieu.",
+  "La lumière du soir traversait les rideaux fanés.",
+  "Personne ne comprenait pourquoi il était parti si vite.",
+  "Le temps, disait-elle, ne pardonne à personne.",
+  "Au loin, les cloches sonnaient un dernier adieu."
+];
+const WORD_BANK = {
+  "le":["the (masc.)","luh"], "la":["the (fem.)","lah"], "les":["the (plural)","lay"],
+  "un":["a / one","uh"], "des":["some","day"], "de":["of / from","duh"], "du":["of the","dew"],
+  "à":["to / at","ah"], "au":["to the","oh"], "ne":["not (with a verb)","nuh"], "se":["oneself","suh"],
+  "son":["his / her","sohn"], "sans":["without","sahn"], "sous":["under","soo"], "que":["that / than","kuh"],
+  "si":["if / so","see"], "plus":["more","plew"], "pourquoi":["why","poor-kwah"],
+  "personne":["no one","pehr-son"], "chaque":["each","shahk"], "jamais":["never","zha-may"],
+  "petit":["small, little","puh-tee"], "grand":["big, tall","grahn"], "vieux":["old","vyuh"],
+  "chat":["cat","shah"], "dort":["sleeps","dor"], "table":["table","tah-bl"],
+  "dragon":["dragon","drah-gohn"], "aime":["loves, likes","em"], "manger":["to eat","mahn-zhay"],
+  "fraises":["strawberries","frez"], "minouche":["kitty (pet name)","mee-noosh"], "saute":["jumps","soht"],
+  "par-dessus":["over, above","par duh-sew"], "barrière":["fence, barrier","bah-ryehr"],
+  "robot":["robot","roh-boh"], "cherche":["searches for","shairsh"], "ami":["friend","ah-mee"],
+  "amis":["friends","ah-mee"], "perdu":["lost","pair-dew"], "trois":["three","trwah"],
+  "jouent":["play (they)","zhoo"], "dans":["in","dahn"], "jardin":["garden","zhar-dan"],
+  "forêt":["forest","foh-ray"], "est":["is","eh"], "pleine":["full","plen"],
+  "secrets":["secrets","suh-kray"], "capitaine":["captain","kah-pee-ten"], "carotte":["carrot","kah-rot"],
+  "sauve":["saves","sohv"], "village":["village","vee-lahzh"], "lapin":["rabbit","lah-pan"],
+  "porte":["wears / carries","port"], "chapeau":["hat","shah-poh"], "marin":["sailor","mah-ran"],
+  "regardait":["was watching","ruh-gar-day"], "mer":["sea","mair"], "dire":["to say","deer"],
+  "mot":["word","moh"], "mots":["words","moh"], "elle":["she","el"], "traversa":["crossed","trah-vair-sah"],
+  "traversait":["was crossing","trah-vair-say"], "ville":["city","veel"], "déserte":["deserted","day-zairt"],
+  "avant":["before","ah-vahn"], "l'aube":["dawn","lohb"], "silence":["silence","see-lahns"],
+  "pesait":["weighed","puh-zay"], "lourd":["heavy","loor"], "prononcés":["spoken, uttered","proh-nohn-say"],
+  "il":["he","eel"], "souvenait":["remembered","soov-nay"], "rue":["street","rew"],
+  "ombre":["shadow","ohm-bruh"], "adieu":["farewell","ah-dyuh"], "lumière":["light","loo-myair"],
+  "soir":["evening","swahr"], "rideaux":["curtains","ree-doh"], "fanés":["faded","fah-nay"],
+  "comprenait":["understood","kohm-pruh-nay"], "était":["was","ay-tay"], "parti":["left, gone","par-tee"],
+  "vite":["quickly","veet"], "temps":["time / weather","tahn"], "disait-elle":["she was saying","dee-zay-tel"],
+  "pardonne":["forgives","par-dun"], "loin":["far","lwan"], "cloches":["bells","klohsh"],
+  "sonnaient":["were ringing","suh-nay"], "dernier":["last","dair-nyay"]
+};
+
+const READER_ICONS = [
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l2.4 5.8L20 9l-4.6 4 1.3 6L12 16l-4.7 3 1.3-6L4 9l5.6-1.2z"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="14" r="4"/><circle cx="13" cy="11" r="5"/><circle cx="17" cy="14" r="3.5"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v10M12 3c-3 0-5 2-5 5s2 4 5 4 5-1 5-4-2-5-5-5z"/><path d="M9 21h6"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/><path d="M9 15c1 1 5 1 6 0"/></svg>'
+];
+
+let readerBook = null, readerIsNovel = false, readerPages = [], readerPageIdx = 0;
+let readerPenOn = false, readerDragging = false, readerDragStart = null, readerWordCounter = 0;
+let readerMode = 'text';
+let pdfDoc = null, pdfPageNum = 1, pdfNumPages = 1, pdfRenderCtx = null;
+
+if(window.pdfjsLib){
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+function buildReaderPages(book, isNovel){
+  const pool = isNovel ? NOVEL_SENTENCES : KIDS_SENTENCES;
+  const perPage = isNovel ? 3 : 2;
+  const totalPages = isNovel ? 5 : 4;
+  const seed = book.title.length;
+  const pages = [];
+  for(let p = 0; p < totalPages; p++){
+    const sentences = [];
+    for(let k = 0; k < perPage; k++){
+      sentences.push(pool[(seed + p * perPage + k) % pool.length]);
+    }
+    pages.push({ sentences, icon: READER_ICONS[(seed + p) % READER_ICONS.length] });
+  }
+  return pages;
+}
+
+function tokenizeSentence(sentence){
+  return sentence.split(' ').map(tok => {
+    const key = tok.replace(/^[«“"'(]+|[»”",.!?;:'")]+$/g, '').toLowerCase();
+    const i = readerWordCounter++;
+    const safeWord = tok.replace(/"/g, '&quot;');
+    return `<span class="rd-word" data-i="${i}" data-key="${key}" data-word="${safeWord}">${tok}</span>`;
+  }).join(' ');
+}
+
+function renderReaderPage(){
+  if(readerMode === 'pdf') return;
+  const page = readerPages[readerPageIdx];
+  readerWordCounter = 0;
+  const textEl = document.getElementById('readerText');
+  textEl.className = 'reader-text' + (readerIsNovel ? ' novel-text' : '');
+  textEl.innerHTML = page.sentences.map(s => `<p>${tokenizeSentence(s)}</p>`).join('');
+
+  const illus = document.getElementById('readerIllustration');
+  if(readerIsNovel){
+    illus.style.display = 'none';
+  } else {
+    illus.style.display = 'flex';
+    illus.className = 'reader-illustration cover-' + (readerBook.cover || 'primary');
+    illus.innerHTML = page.icon;
+  }
+
+  document.getElementById('readerPageIndicator').textContent = `Page ${readerPageIdx + 1} / ${readerPages.length}`;
+  document.getElementById('readerPrevBtn').disabled = (readerPageIdx === 0);
+  document.getElementById('readerNextBtn').textContent = (readerPageIdx === readerPages.length - 1) ? '✓' : '›';
+  hideRdPopup();
+}
+
+function renderPdfPage(num){
+  pdfDoc.getPage(num).then(page => {
+    const wrap = document.getElementById('pdfReaderWrap');
+    const dpr = Math.max(window.devicePixelRatio || 1, 2); // render at least 2x for crisp text/images
+    const unscaled = page.getViewport({ scale: 1 });
+    // fit the page to the available space, leaving a small margin so it doesn't touch the edges
+    const fitScale = Math.min((wrap.clientWidth - 24) / unscaled.width, (wrap.clientHeight - 24) / unscaled.height);
+    const cssViewport = page.getViewport({ scale: fitScale });
+    const renderViewport = page.getViewport({ scale: fitScale * dpr });
+
+    const renderCanvas = document.getElementById('pdfRenderCanvas');
+    renderCanvas.width = renderViewport.width;
+    renderCanvas.height = renderViewport.height;
+    renderCanvas.style.width = cssViewport.width + 'px';
+    renderCanvas.style.height = cssViewport.height + 'px';
+    pdfRenderCtx = renderCanvas.getContext('2d');
+    page.render({ canvasContext: pdfRenderCtx, viewport: renderViewport });
+
+    // real, selectable/copyable text — sits invisibly over the image at the exact same scale
+    const textLayerDiv = document.getElementById('pdfTextLayer');
+    textLayerDiv.innerHTML = '';
+    textLayerDiv.style.width = cssViewport.width + 'px';
+    textLayerDiv.style.height = cssViewport.height + 'px';
+    textLayerDiv.style.setProperty('--scale-factor', fitScale);
+    if(window.pdfjsLib && typeof pdfjsLib.renderTextLayer === 'function'){
+      page.getTextContent().then(textContent => {
+        pdfjsLib.renderTextLayer({
+          textContentSource: textContent,
+          container: textLayerDiv,
+          viewport: cssViewport
+        });
+      }).catch(() => { /* image still renders fine without selectable text */ });
+    }
+
+    pdfPageNum = num;
+    document.getElementById('readerPageIndicator').textContent = `Page ${pdfPageNum} / ${pdfNumPages}`;
+    document.getElementById('readerPrevBtn').disabled = (pdfPageNum === 1);
+    document.getElementById('readerNextBtn').textContent = (pdfPageNum === pdfNumPages) ? '✓' : '›';
+  });
+}
+
+function loadPdf(url, startPage){
+  const status = document.getElementById('pdfStatus');
+  const renderCanvas = document.getElementById('pdfRenderCanvas');
+  status.style.display = 'block';
+  status.textContent = 'Loading page…';
+  renderCanvas.style.display = 'none';
+
+  if(!window.pdfjsLib){
+    status.textContent = "Couldn't load the PDF viewer. Check your internet connection and reload.";
+    return;
+  }
+  pdfjsLib.getDocument(url).promise.then(doc => {
+    pdfDoc = doc;
+    pdfNumPages = doc.numPages;
+    status.style.display = 'none';
+    renderCanvas.style.display = 'block';
+    renderPdfPage(Math.min(Math.max(1, startPage || 1), doc.numPages));
+  }).catch(() => {
+    status.textContent = `Couldn't find "${url}" — make sure this PDF file is uploaded alongside accent.html.`;
+  });
+}
+
+function bookKey(book){ return book.title; }
+function getSavedPage(book){
+  return (window.AccentAuth && window.AccentAuth.getUser && window.AccentAuth.getUser() && window.AccentAuth.getReaderProgress)
+    ? window.AccentAuth.getReaderProgress(bookKey(book)) : 0;
+}
+function saveCurrentPage(book, pageIdx){
+  if(window.AccentAuth && window.AccentAuth.getUser && window.AccentAuth.getUser() && window.AccentAuth.saveReaderProgress){
+    window.AccentAuth.saveReaderProgress(bookKey(book), pageIdx);
+  }
+}
+
+function openReader(book, isNovel){
+  readerBook = book;
+  readerIsNovel = isNovel;
+  readerPenOn = false;
+  document.getElementById('readerPenToggle').classList.remove('active');
+
+  const textEl = document.getElementById('readerText');
+  const illus = document.getElementById('readerIllustration');
+  const pdfWrap = document.getElementById('pdfReaderWrap');
+  const prevBtn = document.getElementById('readerPrevBtn');
+  const nextBtn = document.getElementById('readerNextBtn');
+  const pageIndicator = document.getElementById('readerPageIndicator');
+  const penToggle = document.getElementById('readerPenToggle');
+  const hint = document.getElementById('readerHint');
+
+  if(!isNovel && book.pdf){
+    readerMode = 'pdf';
+    document.querySelector('.reader-page-card').classList.add('pdf-mode');
+    textEl.style.display = 'none';
+    illus.style.display = 'none';
+    pdfWrap.style.display = 'flex';
+    prevBtn.style.display = 'flex';
+    nextBtn.style.display = 'flex';
+    penToggle.style.display = 'none';
+    pageIndicator.textContent = book.title;
+    hint.textContent = 'Click and drag over the text to select it, then copy as usual.';
+
+    loadPdf(book.pdf, getSavedPage(book) + 1);
+  } else {
+    readerMode = 'text';
+    document.querySelector('.reader-page-card').classList.remove('pdf-mode');
+    textEl.style.display = 'block';
+    pdfWrap.style.display = 'none';
+    prevBtn.style.display = 'flex';
+    nextBtn.style.display = 'flex';
+    penToggle.style.display = 'flex';
+    hint.textContent = 'Tap the pen, then drag under a word or sentence to look it up.';
+
+    readerPages = buildReaderPages(book, isNovel);
+    readerPageIdx = Math.min(getSavedPage(book), readerPages.length - 1);
+    renderReaderPage();
+  }
+
+  document.getElementById('readerOverlay').classList.add('active');
+}
+
+function closeReader(){
+  document.getElementById('readerOverlay').classList.remove('active');
+  hideRdPopup();
+}
+
+document.getElementById('readerExitBtn').addEventListener('click', closeReader);
+document.getElementById('readerPrevBtn').addEventListener('click', () => {
+  if(readerMode === 'pdf'){
+    if(pdfDoc && pdfPageNum > 1){ renderPdfPage(pdfPageNum - 1); saveCurrentPage(readerBook, pdfPageNum - 2); }
+  } else if(readerPageIdx > 0){ readerPageIdx--; renderReaderPage(); saveCurrentPage(readerBook, readerPageIdx); }
+});
+document.getElementById('readerNextBtn').addEventListener('click', () => {
+  if(readerMode === 'pdf'){
+    if(pdfDoc && pdfPageNum < pdfNumPages){ renderPdfPage(pdfPageNum + 1); saveCurrentPage(readerBook, pdfPageNum); }
+    else if(pdfDoc && pdfPageNum === pdfNumPages) closeReader();
+  } else if(readerPageIdx < readerPages.length - 1){ readerPageIdx++; renderReaderPage(); saveCurrentPage(readerBook, readerPageIdx); }
+  else { closeReader(); }
+});
+document.getElementById('readerPenToggle').addEventListener('click', function(){
+  readerPenOn = !readerPenOn;
+  this.classList.toggle('active', readerPenOn);
+  document.getElementById('readerHint').textContent = readerPenOn
+    ? 'Drag under a word or sentence, then choose meaning or speak.'
+    : 'Tap the pen, then drag under a word or sentence to look it up.';
+});
+
+window.addEventListener('resize', () => {
+  if(readerMode === 'pdf' && pdfDoc && document.getElementById('readerOverlay').classList.contains('active')) renderPdfPage(pdfPageNum);
+});
+
+// ---- underline drag-select ----
+const readerTextWrap = document.getElementById('readerText');
+
+function clearDraft(){
+  readerTextWrap.querySelectorAll('.rd-word.rd-draft').forEach(w => w.classList.remove('rd-draft'));
+}
+function markRange(a, b){
+  clearDraft();
+  const lo = Math.min(a, b), hi = Math.max(a, b);
+  readerTextWrap.querySelectorAll('.rd-word').forEach(w => {
+    const i = parseInt(w.dataset.i);
+    if(i >= lo && i <= hi) w.classList.add('rd-draft');
+  });
+}
+function hideRdPopup(){
+  document.getElementById('rdPopup')?.remove();
+}
+function lookup(key){
+  return WORD_BANK[key] || [key, key];
+}
+function showRdPopup(x, y, keys, phrase){
+  hideRdPopup();
+  const popup = document.createElement('div');
+  popup.className = 'rd-popup';
+  popup.id = 'rdPopup';
+  popup.style.left = x + 'px';
+  popup.style.top = y + 'px';
+  popup.innerHTML = `<button data-mode="meaning">Meaning</button><button data-mode="speak">Speak</button>`;
+  document.body.appendChild(popup);
+
+  popup.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const btn = e.target.closest('button[data-mode]');
+    if(!btn) return;
+
+    if(btn.dataset.mode === 'speak'){
+      const utter = new SpeechSynthesisUtterance(phrase);
+      utter.lang = 'fr-FR';
+      speechSynthesis.speak(utter);
+      popup.innerHTML = `<span class="rd-answer">🔊 "${phrase}"</span><button class="rd-close">×</button>`;
+      popup.querySelector('.rd-close').addEventListener('click', (ev) => { ev.stopPropagation(); hideRdPopup(); });
+      return;
+    }
+
+    // meaning: look up each word in the built-in dictionary
+    const answer = keys.map(k => lookup(k)[0]).join(' · ');
+    popup.innerHTML = `<span class="rd-answer">${answer}</span><button class="rd-close">×</button>`;
+    popup.querySelector('.rd-close').addEventListener('click', (ev) => { ev.stopPropagation(); hideRdPopup(); });
+  });
+}
+
+readerTextWrap.addEventListener('pointerdown', (e) => {
+  if(!readerPenOn) return;
+  const w = e.target.closest('.rd-word');
+  if(!w) return;
+  readerDragging = true;
+  readerDragStart = parseInt(w.dataset.i);
+  markRange(readerDragStart, readerDragStart);
+});
+document.addEventListener('pointermove', (e) => {
+  if(!readerDragging) return;
+  const el = document.elementFromPoint(e.clientX, e.clientY);
+  const w = el && el.closest ? el.closest('.rd-word') : null;
+  if(w) markRange(readerDragStart, parseInt(w.dataset.i));
+});
+document.addEventListener('pointerup', (e) => {
+  if(!readerDragging) return;
+  readerDragging = false;
+  const draftWords = Array.from(readerTextWrap.querySelectorAll('.rd-word.rd-draft'));
+  if(draftWords.length === 0) return;
+  draftWords.forEach(w => { w.classList.remove('rd-draft'); w.classList.add('rd-marked'); });
+  const keys = draftWords.map(w => w.dataset.key);
+  const phrase = draftWords.map(w => w.dataset.word).join(' ');
+  const last = draftWords[draftWords.length - 1];
+  const rect = last.getBoundingClientRect();
+  showRdPopup(rect.left + rect.width / 2, rect.top, keys, phrase);
+});
+document.addEventListener('click', (e) => {
+  if(e.target.closest('#rdPopup') || e.target.closest('.rd-word')) return;
+  hideRdPopup();
+});
+
+// ---------------- HYBRID: task data ----------------
+const HYBRID_TASKS = [
+  {id:"hy1", title:"Ordering breakfast", speaker:"Amelie", dur:"1:40", transcript:[
+    {time:"0:00", fr:"Bonjour, je voudrais un croissant et un café.", en:"Good morning, I'd like a croissant and a coffee."},
+    {time:"0:06", fr:"Sur place ou à emporter ?", en:"For here or to go?"},
+    {time:"0:09", fr:"Sur place, s'il vous plaît.", en:"For here, please."},
+    {time:"0:12", fr:"Très bien, ça fait cinq euros.", en:"Great, that's five euros."}
+  ]},
+  {id:"hy2", title:"Asking for the time", speaker:"Hugo", dur:"1:15", transcript:[
+    {time:"0:00", fr:"Excusez-moi, vous avez l'heure ?", en:"Excuse me, do you have the time?"},
+    {time:"0:04", fr:"Oui, il est trois heures et demie.", en:"Yes, it's half past three."},
+    {time:"0:08", fr:"Merci beaucoup !", en:"Thank you very much!"}
+  ]},
+  {id:"hy3", title:"Meeting a neighbour", speaker:"Claire", dur:"1:55", transcript:[
+    {time:"0:00", fr:"Bonjour, je m'appelle Claire, j'habite juste à côté.", en:"Hi, I'm Claire, I live right next door."},
+    {time:"0:07", fr:"Enchanté, moi c'est Marc.", en:"Nice to meet you, I'm Marc."},
+    {time:"0:11", fr:"Vous êtes ici depuis longtemps ?", en:"Have you been here long?"},
+    {time:"0:15", fr:"Depuis environ deux ans.", en:"About two years."}
+  ]},
+  {id:"hy4", title:"Calling a taxi", speaker:"Marc", dur:"1:30", transcript:[
+    {time:"0:00", fr:"Bonjour, je voudrais réserver un taxi.", en:"Hello, I'd like to book a taxi."},
+    {time:"0:05", fr:"Pour quelle adresse ?", en:"For which address?"},
+    {time:"0:08", fr:"Douze rue des Lilas, s'il vous plaît.", en:"Twelve Rue des Lilas, please."},
+    {time:"0:13", fr:"Il arrive dans dix minutes.", en:"It'll arrive in ten minutes."}
+  ]},
+  {id:"hy5", title:"At the bakery counter", speaker:"Léo", dur:"1:20", transcript:[
+    {time:"0:00", fr:"Je peux vous aider ?", en:"Can I help you?"},
+    {time:"0:03", fr:"Oui, deux baguettes s'il vous plaît.", en:"Yes, two baguettes please."},
+    {time:"0:07", fr:"Autre chose ?", en:"Anything else?"},
+    {time:"0:09", fr:"Non, ce sera tout, merci.", en:"No, that'll be all, thanks."}
+  ]},
+  {id:"hy6", title:"Checking into a hotel", speaker:"Amelie", dur:"2:05", transcript:[
+    {time:"0:00", fr:"Bonsoir, j'ai une réservation au nom de Dubois.", en:"Good evening, I have a reservation under Dubois."},
+    {time:"0:06", fr:"Une seconde... oui, une chambre pour deux nuits.", en:"One second... yes, a room for two nights."},
+    {time:"0:12", fr:"C'est exact.", en:"That's right."},
+    {time:"0:14", fr:"Voici votre clé, chambre douze.", en:"Here's your key, room twelve."}
+  ]}
+];
+let hybridCurrentTask = null;
+
+function renderHybridGrid(){
+  const grid = document.getElementById('hybridGrid');
+  grid.innerHTML = "";
+  HYBRID_TASKS.forEach((task, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const heights = rngSeq(i + 7, 18, 6, 28);
+    const bars = heights.map(h => `<span style="height:${h}px"></span>`).join('');
+    card.innerHTML = `
+      <div class="thumb">
+        <div class="waveform">${bars}</div>
+        <div class="play-badge"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="22" fill="rgba(0,0,0,.5)"/><path d="M18 14l14 8-14 8V14z" fill="#fff"/></svg></div>
+        <span class="duration">${task.dur}</span>
+      </div>
+      <div class="card-info">
+        <div class="avatar">${task.speaker[0]}</div>
+        <div class="card-text">
+          <h3>${task.title}</h3>
+          <div class="card-meta"><span class="level-pill level-beginner">task</span><span>${task.speaker}</span></div>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', () => openHybridTask(task.id));
+    grid.appendChild(card);
+  });
+}
+
+function setStepIndicator(step){
+  document.querySelectorAll('#hybridSteps .step-dot').forEach(dot => {
+    const n = parseInt(dot.dataset.step);
+    dot.classList.remove('done','current');
+    dot.innerHTML = n;
+    if(n < step){ dot.classList.add('done'); dot.innerHTML = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>'; }
+    else if(n === step) dot.classList.add('current');
+  });
+  document.querySelectorAll('#hybridSteps .step-line').forEach((line, i) => {
+    line.classList.toggle('done', (i + 1) < step);
+  });
+}
+
+function goToHybridStep(step){
+  [1,2,3,4].forEach(n => { document.getElementById('hybridStep' + n).style.display = (n === step) ? 'block' : 'none'; });
+  setStepIndicator(step);
+  if(step === 2){
+    document.getElementById('hybridTitle2').textContent = hybridCurrentTask.title;
+    document.getElementById('hybridTranscript').innerHTML = hybridCurrentTask.transcript.map(line => `
+      <div class="transcript-line">
+        <div class="transcript-time">${line.time}</div>
+        <div class="transcript-text"><p>${line.fr}</p><span>${line.en}</span></div>
+      </div>
+    `).join('');
+  }
+  if(step === 3){
+    document.getElementById('hybridTitle3').textContent = hybridCurrentTask.title;
+    resetStage(3);
+  }
+  if(step === 4){
+    document.getElementById('hybridSpeakerName').textContent = hybridCurrentTask.speaker;
+    document.getElementById('hybridSpeakStatus').textContent = 'Tap the mic and repeat the sentence out loud';
+    document.getElementById('hybridSpeakTranscript').textContent = '';
+    document.getElementById('hybridMicBtn').classList.remove('on');
+    document.getElementById('hybridCharacter').classList.remove('listening');
+    document.getElementById('hybridFinishBtn').disabled = true;
+  }
+}
+
+function resetStage(n){
+  const wave = document.getElementById('hybridWave' + n);
+  const heights = rngSeq(hybridCurrentTask.id.length + n, 24, 12, 60);
+  wave.innerHTML = heights.map(h => `<span style="height:${h}px"></span>`).join('');
+  document.getElementById('hybridPlay' + n).style.display = 'flex';
+  document.getElementById('hybridCheck' + n).style.display = 'none';
+  document.getElementById('hybridProgress' + n).style.width = '0%';
+  if(n === 1){
+    document.getElementById('hybridTitle1').textContent = hybridCurrentTask.title;
+    document.getElementById('hybridSub1').textContent = `${hybridCurrentTask.speaker} · ${hybridCurrentTask.dur}`;
+  }
+}
+
+function playStage(n, onComplete){
+  const playBtn = document.getElementById('hybridPlay' + n);
+  const progress = document.getElementById('hybridProgress' + n);
+  const check = document.getElementById('hybridCheck' + n);
+  playBtn.style.display = 'none';
+  let pct = 0;
+  const timer = setInterval(() => {
+    pct += 4;
+    progress.style.width = Math.min(pct, 100) + '%';
+    if(pct >= 100){
+      clearInterval(timer);
+      check.style.display = 'flex';
+      setTimeout(onComplete, 700);
+    }
+  }, 140);
+}
+
+function openHybridTask(id){
+  hybridCurrentTask = HYBRID_TASKS.find(t => t.id === id);
+  document.getElementById('hybridTaskGrid').classList.remove('active');
+  document.getElementById('hybridFlow').classList.add('active');
+  resetStage(1);
+  goToHybridStep(1);
+}
+
+document.getElementById('hybridPlay1').addEventListener('click', () => {
+  playStage(1, () => goToHybridStep(2));
+});
+document.getElementById('hybridToStep3').addEventListener('click', () => goToHybridStep(3));
+document.getElementById('hybridPlay3').addEventListener('click', () => {
+  playStage(3, () => goToHybridStep(4));
+});
+
+let hybridListening = false;
+document.getElementById('hybridMicBtn').addEventListener('click', function(){
+  hybridListening = !hybridListening;
+  const character = document.getElementById('hybridCharacter');
+  const status = document.getElementById('hybridSpeakStatus');
+  const transcript = document.getElementById('hybridSpeakTranscript');
+  this.classList.toggle('on', hybridListening);
+  character.classList.toggle('listening', hybridListening);
+  if(hybridListening){
+    status.textContent = 'Listening…';
+    transcript.textContent = '';
+  } else {
+    status.textContent = 'Nicely done — that sounded natural.';
+    const line = hybridCurrentTask.transcript[0];
+    transcript.textContent = `"${line.fr}"`;
+    document.getElementById('hybridFinishBtn').disabled = false;
+  }
+});
+
+document.getElementById('hybridFinishBtn').addEventListener('click', () => {
+  document.getElementById('hybridFlow').classList.remove('active');
+  document.getElementById('hybridTaskGrid').classList.add('active');
+});
+document.getElementById('hybridExitBtn').addEventListener('click', () => {
+  document.getElementById('hybridFlow').classList.remove('active');
+  document.getElementById('hybridTaskGrid').classList.add('active');
+});
+
+// ---------------- init ----------------
+renderGrid('beginner');
+updateHistoryCount();
+renderSrsCard();
+renderHeatmap();
+renderBookGrid('childrenBookGrid', CHILDREN_BOOKS, false);
+renderBookGrid('novelBookGrid', NOVELS, true);
+renderHybridGrid();
+</script>
+
+</body>
+</html>
